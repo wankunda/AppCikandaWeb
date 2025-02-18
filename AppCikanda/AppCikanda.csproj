@@ -17,10 +17,4 @@
     <ProjectReference Include="..\ModelsServices\ModelsServices.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Components\Pages\Home\" />
-    <Folder Include="Components\Pages\Article\" />
-    <Folder Include="Components\Pages\Category\" />
-  </ItemGroup>
-
 </Project>
