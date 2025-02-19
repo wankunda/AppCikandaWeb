@@ -1,15 +1,30 @@
 ﻿@namespace AppCikanda
 
-<MudNavMenu Color="Color.Info">
-    <MudText Typo="Typo.h6" Class="px-4">My Application</MudText>
-    <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Secondary Text</MudText>
-    <MudDivider Class="my-2" />
-    <MudNavLink Href="/dashboard">Dashboard</MudNavLink>
-    <MudNavLink Href="/servers">Servers</MudNavLink>
-    <MudNavLink Href="/billing" Disabled="true">Billing</MudNavLink>
-    <MudNavGroup Title="Settings" Expanded="true">
-        <MudNavLink Href="/users">Users</MudNavLink>
-        <MudNavLink Href="/security">Security</MudNavLink>
+<MudNavMenu Color="Color.Warning" Class="pa-2">
+    <MudPaper Class="pa-4" Elevation="6" Style="background:transparent; color:white;">
+        <MudText Typo="Typo.caption" Class="px-4 py-1">Cikanda Businness</MudText>
+    </MudPaper>
+    
+    <MudNavLink Href="/">Accueil</MudNavLink>
+    <MudNavGroup Title="Marchandises" IconColor="Color.Inherit" Icon="@Icons.Material.Filled.Girl" >
+        <MudNavLink Href="/users">Articles</MudNavLink>
+        <MudNavLink Href="/list-categories">Catégorie</MudNavLink>
+        <MudNavLink Href="/">Entrées</MudNavLink>
     </MudNavGroup>
-    <MudNavLink Href="/about">About</MudNavLink>
+    <MudNavGroup Title="Points de vente">
+        <MudNavLink Href="/users">Point de vente</MudNavLink>
+        <MudNavLink Href="/security">Prix de vente</MudNavLink>
+    </MudNavGroup>
+    <MudNavLink Href="/">Dépense</MudNavLink>
+    <MudNavLink Href="/">Rapport</MudNavLink>
+    <MudNavGroup Title="Stock">
+        <MudNavLink Href="/users">Situation</MudNavLink>
+        <MudNavLink Href="/security">Inventaire</MudNavLink>
+    </MudNavGroup>
+    <MudNavGroup Title="Configuration">
+        <MudNavLink Href="/users">Taux</MudNavLink>
+        <MudNavLink Href="/users">Situation</MudNavLink>
+        <MudNavLink Href="/security">Inventaire</MudNavLink>
+    </MudNavGroup>
+    <MudNavLink Href="/about">A propos</MudNavLink>
 </MudNavMenu>

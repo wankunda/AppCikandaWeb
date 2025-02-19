@@ -27,4 +27,13 @@
         Suspendue,
         Annulée
     }
+
+    public enum TypeResponse
+    {
+        Normal,
+        Info,
+        Success,
+        Warning,
+        Error
+    }
 }

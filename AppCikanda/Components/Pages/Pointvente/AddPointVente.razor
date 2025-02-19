@@ -1,0 +1,52 @@
+﻿
+<MudDialog>
+    <DialogContent>
+        <MudForm @bind-IsValid="@success" @bind-Errors="@errors" Class="mx-auto">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField T="string" Label="Catégorie" Required="true" RequiredError="La désignation du point de vente est obligatoire !" @bind-Value="pointVente.Designation" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" Class="ml-auto" OnClick="Valide">Valider</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    PointVente pointVente;
+    bool old;
+    bool success;
+    string[] errors = { };
+    [Inject] PointVenteService datacontext { get; set; }
+    [Inject] ISnackbar snackbar { get; set; }
+
+    [Parameter] public Guid Id { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id == Guid.Empty)
+        {
+            pointVente = new();
+            old = false;
+        }
+        else
+        {
+            pointVente = await datacontext.Get(Id);
+            old = true;
+        }
+    }
+
+    async void Valide()
+    {
+        Response rep;
+        if (old)
+            rep = await datacontext.Update(pointVente);
+        else
+            rep = await datacontext.Add(pointVente);
+
+        snackbar.Add(rep.Message, (Severity)rep.TypeResponse);
+    }
+}

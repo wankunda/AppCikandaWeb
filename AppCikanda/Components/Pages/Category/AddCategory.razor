@@ -1,5 +1,52 @@
-﻿<h3>Add</h3>
+﻿
+<MudDialog>
+    <DialogContent>
+        <MudForm @bind-IsValid="@success" @bind-Errors="@errors" Class="mx-auto">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField T="string" Label="Catégorie" Required="true" RequiredError="La désignation de la catégorie est obligatoire !" @bind-Value="category.Libellé" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" Class="ml-auto" OnClick="Valide">Valider</MudButton>
+    </DialogActions>
+</MudDialog>
 
 @code {
+    Category category;
+    bool old;
+    bool success;
+    string[] errors = { };
+    [Inject] CategoryService datacontext { get; set; }
+    [Inject] ISnackbar snackbar { get; set; }
 
+    [Parameter] public Guid Id { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id == Guid.Empty)
+        {
+            category = new();
+            old = false;
+        }
+        else
+        {
+            category = await datacontext.Get(Id);
+            old = true;
+        }
+    }
+
+    async void Valide()
+    {
+        Response rep;
+        if (old)
+            rep = await datacontext.Update(category);
+        else
+            rep = await datacontext.Add(category);
+
+        snackbar.Add(rep.Message, (Severity)rep.TypeResponse);
+    }
 }

@@ -1,0 +1,15 @@
+﻿@namespace AppCikanda
+
+<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="input" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <div class="form-panel-content">
+                <p class="text-white">Désolé, cette adresse n'existe pas.</p>
+            </div>
+        </LayoutView>
+    </NotFound>
+</Router>

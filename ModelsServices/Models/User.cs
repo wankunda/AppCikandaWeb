@@ -2,9 +2,8 @@
 
 namespace ModelsServices.Models
 {
-    public class User
+    public class User : BaseConfig
     {
-        public Guid Id { get; set; }
         public Guid IdPointVente { get; set; }
         public string? Username { get; set; }
         public string? Photo { get; set; }

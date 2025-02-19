@@ -9,12 +9,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CodeBeam.MudBlazor.Extensions" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.WindowsForms" Version="8.0.100" />
     <PackageReference Include="MudBlazor" Version="8.2.0" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.12" />
+	  <PackageReference Include="ZXingBlazor" Version="1.1.5" />
   </ItemGroup>
-
+	
   <ItemGroup>
     <ProjectReference Include="..\ModelsServices\ModelsServices.csproj" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Folder Include="wwwroot\images\users\" />
+    <Folder Include="wwwroot\images\produits\" />
   </ItemGroup>
 
 </Project>

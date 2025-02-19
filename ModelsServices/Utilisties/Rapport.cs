@@ -1,4 +1,7 @@
-﻿namespace ModelsServices.Utilisties
+﻿using ModelsServices.OldsModels;
+using ModelsServices.Utilities;
+
+namespace ModelsServices.Utilisties
 {
     public class Rapport
     {

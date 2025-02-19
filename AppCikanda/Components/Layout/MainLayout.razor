@@ -1,21 +1,29 @@
 ﻿@namespace AppCikanda
 @inherits LayoutComponentBase
 
-<MudThemeProvider />
+<MudThemeProvider Theme="MyCustomTheme" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Dense="true">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        My Application
+    <MudAppBar Elevation="3">
+        <MudIconButton Icon="@((_drawerOpen)? Icons.Material.Filled.MenuOpen : Icons.Material.Filled.Menu)" Edge="Edge.Start" Color="Color.Inherit" OnClick="@((e) => DrawerToggle())" />
+        Gestion de vente
+        <MudSpacer />
+        <MudBadge Color="Color.Success" Overlap="true" Bordered="true">
+            <MudAvatar>
+                <MudImage Src="images/jonny.jpg" />
+            </MudAvatar>
+        </MudBadge>
     </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen" Color="Color.Inherit">
+    <MudDrawer @bind-Open="@_drawerOpen" Color="Color.Inherit" Elevation="3">
         <MyNavMenu/>
     </MudDrawer>
     <MudMainContent>
-        @Body
+        <MudContainer Class="py-6" MaxWidth="MaxWidth.ExtraLarge">
+            @Body
+        </MudContainer>
     </MudMainContent>
 </MudLayout>
 @code {
@@ -25,4 +33,99 @@
     {
         _drawerOpen = !_drawerOpen;
     }
+
+    MudTheme MyCustomTheme = new MudTheme()
+        {
+            PaletteLight = new PaletteLight()
+            {
+                Background = Colors.BlueGray.Lighten4,
+                DrawerBackground = Colors.Blue.Darken3,
+                AppbarBackground = Colors.Blue.Darken3,
+                DrawerText = Colors.Shades.White,
+            },
+            Typography = new Typography()
+            {
+                Default = new DefaultTypography()
+                {
+                    FontSize = "20",
+                    FontFamily = ["Century Gothic"],
+                },
+                Body1 = new Body1Typography()
+                {
+                    FontSize = "20px",
+                    LetterSpacing = "1px",
+                    FontWeight = "600",
+                    LineHeight = "2"
+                },
+                Body2 = new Body2Typography()
+                {
+                    FontSize = "22px",
+                    LetterSpacing = "1px",
+                    FontWeight = "700",
+                    LineHeight = "2"
+                },
+                Subtitle1 = new Subtitle1Typography()
+                {
+                    FontSize = "24px",
+                    FontWeight = "800",
+                },
+                Subtitle2 = new Subtitle2Typography()
+                {
+                    FontSize = "26px",
+                    FontWeight = "800",
+                },
+                H6 = new H6Typography()
+                {
+                    FontSize = "28px",
+                    FontWeight = "800",
+                    LineHeight = "2.5"
+                },
+                H5 = new H5Typography()
+                {
+                    FontSize = "38px",
+                    FontWeight = "800",
+                    LineHeight = "2.5"
+                },
+                H4 = new H4Typography()
+                {
+                    FontSize = "48px",
+                    FontWeight = "800",
+                    LineHeight = "2.5"
+                },
+                H3 = new H3Typography()
+                {
+                    FontSize = "58px",
+                    FontWeight = "800",
+                    LineHeight = "2.5"
+                },
+                H2 = new H2Typography()
+                {
+                    FontSize = "68px",
+                    FontWeight = "800",
+                    LineHeight = "2.5"
+                },
+                H1 = new H1Typography()
+                {
+                    FontSize = "78px",
+                    FontWeight = "800",
+                    LineHeight = "2.5"
+                },
+                Caption = new CaptionTypography()
+                {
+                    FontSize = "16px",
+                    FontWeight = "600",
+                },
+                Button = new ButtonTypography()
+                {
+                    FontSize = "18px",
+                    TextTransform = "uppercase",
+                    FontWeight = "600",
+                },
+                Overline = new OverlineTypography()
+                {
+                    FontWeight = "600",
+                    FontSize = "16px",
+                },
+            },
+        };
 }

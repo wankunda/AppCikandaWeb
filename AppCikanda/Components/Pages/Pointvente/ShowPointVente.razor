@@ -1,0 +1,54 @@
+﻿
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudText Typo="Typo.h4">@pointVente.Designation</MudText>
+            </MudItem>
+        </MudGrid>
+        <MudTable Items="@list" Dense="@true" Hover="@true" Bordered="@false" Striped="@true">
+            <HeaderContent>
+                <MudTh>Nr</MudTh>
+                <MudTh>Article</MudTh>
+                <MudTh>Prix de vente</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Nr">@context.Num</MudTd>
+                <MudTd DataLabel="Article">@context.Produit</MudTd>
+                <MudTd DataLabel="Prix de vente">@context.Prix</MudTd>
+                <MudTd>
+                    <MudChip T="string" Color="@(context.Statut? Color.Success : Color.Error)">@(context.Statut ? "Activé" : "Désactivé")</MudChip>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    PointVente pointVente;
+    [Parameter] public Guid Id { get; set; }
+    List<PrixPointVenteViewModel> list = new List<PrixPointVenteViewModel>();
+    [Inject] PointVenteService datacontext { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        pointVente = await datacontext.Get(Id);
+
+        int num = 1;
+        foreach (var i in pointVente.PrixVentes)
+        {
+            list.Add(new PrixPointVenteViewModel()
+                {
+                    Num = num,
+                    Prix = i.Cout + " " + i.Monnaie,
+                    Produit = i.Produit.Designation,
+                    Statut = i.Active
+                });
+                num++;
+        }
+    }
+}

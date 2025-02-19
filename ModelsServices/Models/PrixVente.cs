@@ -1,12 +1,9 @@
 ﻿using ModelsServices.Utilities;
-using System.ComponentModel.DataAnnotations;
 
 namespace ModelsServices.Models
 {
-    public class PrixVente
+    public class PrixVente : BaseConfig
     {
-        [Key, Required]
-        public Guid Id { get; set; }
         public float Cout { get; set; }
         public Monnaie Monnaie { get; set; }
         public Guid IdProduit { get; set; }

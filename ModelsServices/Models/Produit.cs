@@ -1,13 +1,11 @@
 ﻿using ModelsServices.Utilities;
-using System.ComponentModel.DataAnnotations;
 
 namespace ModelsServices.Models
 {
-    public class Produit
+    public class Produit : BaseConfig
     {
-        [Key, Required]
-        public Guid Id { get; set; }
         public string Designation { get; set; }
+        public string Image { get; set; }
         public int StockInitial { get; set; }
         public int PrixAchat { get; set; }
         public Monnaie Monnaie { get; set; }

@@ -1,0 +1,24 @@
+﻿@namespace AppCikanda
+
+<MudPaper Class="ma-1 pa-2"  Elevation="0">
+    <MudPaper Class="d-flex justify-center flex-grow-1 gap-4 ma-2" Elevation="0">
+         <MudBarcode @ref="_barcode" @bind-Value="@imageQRCode" Width="200" Height="200" 
+         BarcodeFormat="_barcodeFormat" Clickable="false" Color="black" BackgroundColor="white" StrokeWidth="0" />
+    </MudPaper>
+</MudPaper>
+
+
+@code {
+    string imageQRCode = "";
+    [Parameter] public Guid Id { get; set; }
+
+    MudBarcode _barcode;
+    ZXing.BarcodeFormat _barcodeFormat = ZXing.BarcodeFormat.QR_CODE;
+
+    protected override void OnInitialized()
+    {
+        string txtId = Id.ToString();
+        imageQRCode = txtId;
+        StateHasChanged();
+    }
+}

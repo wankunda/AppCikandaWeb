@@ -1,12 +1,9 @@
 ﻿using ModelsServices.Utilities;
-using System.ComponentModel.DataAnnotations;
 
 namespace ModelsServices.Models
 {
-    public class ProduitsVendus
+    public class ProduitsVendus : BaseConfig
     {
-        [Key, Required]
-        public Guid Id { get; set; }
         public Guid IdCommand { get; set; }
         public Command Command { get; set; }
         public Guid IdPrixVente { get; set; }

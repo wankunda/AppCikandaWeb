@@ -1,0 +1,130 @@
+﻿@page "/list-pointsdevente"
+
+
+<MudTable Items="@Elements" Dense="true" Hover="true" Bordered="true" Striped="true" Filter="new Func<PointVenteViewModel,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Liste des points de vente</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Rechercher" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudSpacer />
+        <MudTooltip Text="Ajouter un point de vente" Color="Color.Primary" Placement="Placement.Top" Arrow="true">
+            <MudIconButton Color="Color.Primary" Variant="Variant.Filled" OnClick="add" Icon="@Icons.Material.Filled.Add" />
+        </MudTooltip>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Nr</MudTh>
+        <MudTh>Désignation</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nr">@context.Num</MudTd>
+        <MudTd DataLabel="Désignation">@context.Designation</MudTd>
+        <MudTd>
+            <MudTooltip Text="Voir plus" Color="Color.Primary" Placement="Placement.Top" Arrow="true">
+                <MudIconButton Color="Color.Primary" Variant="Variant.Filled" OnClick="()=>show(context.Code)" Icon="@Icons.Material.Filled.ChevronRight" />
+            </MudTooltip>
+            <MudTooltip Text="Modifier" Color="Color.Success" Placement="Placement.Top" Arrow="true">
+                <MudIconButton Color="Color.Success" Variant="Variant.Filled" OnClick="()=>edit(context.Code)" Icon="@Icons.Material.Filled.Edit" />
+            </MudTooltip>
+            <MudTooltip Text="Supprimer" Color="Color.Error" Placement="Placement.Top" Arrow="true">
+                <MudIconButton Color="Color.Error" Variant="Variant.Filled" OnClick="()=>delete(context.Code)" Icon="@Icons.Material.Filled.Delete" />
+            </MudTooltip>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager HideRowsPerPage="true" />
+    </PagerContent>
+</MudTable>
+
+<div class="d-flex flex-wrap mt-4">
+    <div style="min-width:200px;">
+        <MudText Class="align-self-center d-inline">Point de vente sélectionné : @selectedItem1?.Designation</MudText>
+    </div>
+</div>
+
+
+@code {
+    private string searchString1 = "";
+    private PointVenteViewModel selectedItem1 = null;
+    [Inject] private IDialogService DialogService { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Inject] PointVenteService datacontext { get; set; }
+    [Inject] ISnackbar snackbar { get; set; }
+
+    private List<PointVenteViewModel> Elements = new List<PointVenteViewModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        GetData();
+    }
+
+    async void GetData()
+    {
+        var data = await datacontext.GetAll();
+
+        int num = 1;
+        foreach (var i in data)
+        {
+            Elements.Add(new PointVenteViewModel
+                {
+                    Num = num,
+                    Code = i.Id,
+                    Designation = i.Designation
+                });
+            num++;
+        }
+        StateHasChanged();
+    }
+
+    async void delete(Guid id)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Suppression",
+            "Voulez - vous supprimer ce point de vente ?",
+            yesText: "Confirmer !", cancelText: "Annuler");
+        if (result == true)
+        {
+            var rep = await datacontext.Delete(id);
+            snackbar.Add(rep.Message, (Severity)rep.TypeResponse);
+            GetData();
+        }
+    }
+
+    async void add()
+    {
+        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<AddPointVente>("Ajouter un point de vente", maxWidth);
+        var result = await dialog.Result;
+        if (result.Canceled)
+            GetData();
+    }
+
+    async void show(Guid id)
+    {
+        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.ExtraLarge, FullWidth = true, Position = DialogPosition.TopCenter };
+        var parameters = new DialogParameters<ShowPointVente> { { x => x.Id, id } };
+        await DialogService.ShowAsync<ShowPointVente>("Detail du point de vente", parameters, maxWidth);
+    }
+
+    async void edit(Guid id)
+    {
+        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true };
+        var parameters = new DialogParameters<AddPointVente> { { x => x.Id, id } };
+        var dialog = await DialogService.ShowAsync<AddPointVente>("Modifier un point de vente", parameters, maxWidth);
+        var result = await dialog.Result;
+        if (result.Canceled)
+            GetData();
+    }
+
+    private bool FilterFunc1(PointVenteViewModel element) => FilterFunc(element, searchString1);
+
+    private bool FilterFunc(PointVenteViewModel element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Designation.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+}

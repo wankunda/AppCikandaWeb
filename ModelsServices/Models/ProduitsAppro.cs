@@ -1,12 +1,9 @@
 ﻿using ModelsServices.Utilities;
-using System.ComponentModel.DataAnnotations;
 
 namespace ModelsServices.Models
 {
-    public class ProduitsAppro
+    public class ProduitsAppro : BaseConfig
     {
-        [Key, Required]
-        public Guid Id { get; set; }
         public Guid IdProduit { get; set; }
         public Produit? Produit { get; set; }
         public Guid IdAppro { get; set; }

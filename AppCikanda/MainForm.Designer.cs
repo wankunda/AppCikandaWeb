@@ -46,8 +46,10 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(blazorWebView1);
+            MinimumSize = new Size(816, 489);
             Name = "MainForm";
-            Text = "Form1";
+            WindowState = FormWindowState.Maximized;
+            Load += MainForm_Load;
             ResumeLayout(false);
         }
 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.WebView.WindowsForms;
 using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics.Metrics;
+using ModelsServices.Data;
+using ModelsServices.Services;
 using MudBlazor.Services;
 
 namespace AppCikanda
@@ -15,11 +16,24 @@ namespace AppCikanda
             services.AddWindowsFormsBlazorWebView();
             services.AddMudServices();
 
+            //Inscription des services
+            services.AddScoped<CategoryService>();
+            services.AddScoped<ProduitService>();
+
 
             blazorWebView1.HostPage = "wwwroot\\index.html";
             blazorWebView1.Dock = DockStyle.Fill;
             blazorWebView1.Services = services.BuildServiceProvider();
-            blazorWebView1.RootComponents.Add<MainLayout>("#app");
+            blazorWebView1.RootComponents.Add<App>("#app");
+
+            blazorWebView1.Services = services.BuildServiceProvider();
+        }
+
+        private AppDbContext? dbContext;
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            dbContext = new AppDbContext();
+            dbContext.Database.EnsureCreated();
         }
     }
 }
