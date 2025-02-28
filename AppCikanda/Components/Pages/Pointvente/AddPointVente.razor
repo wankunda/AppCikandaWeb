@@ -15,19 +15,19 @@
 </MudDialog>
 
 @code {
-    PointVente pointVente;
+    PointVenteAddModel pointVente;
     bool old;
     bool success;
     string[] errors = { };
     [Inject] PointVenteService datacontext { get; set; }
     [Inject] ISnackbar snackbar { get; set; }
 
-    [Parameter] public Guid Id { get; set; }
+    [Parameter] public int Id { get; set; }
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id == Guid.Empty)
+        if (Id == 0)
         {
             pointVente = new();
             old = false;

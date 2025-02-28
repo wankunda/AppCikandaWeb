@@ -1,0 +1,116 @@
+﻿
+<MudDialog>
+    <DialogContent>
+        <MudForm @bind-IsValid="@success" @bind-Errors="@errors" Class="mx-auto">
+            <MudGrid>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField T="string" Label="Désignation" Required="true" RequiredError="La désignation de l'article est obligatoire !" @bind-Value="article.Designation" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudSelect Dense="true" T="int" Label="Sélectionner une catégorie" Variant="Variant.Text" @bind-Value="article.IdCategory"
+                               Required="true" RequiredError="La catégorie est requise !">
+                        @foreach (var i in Catégories)
+                        {
+                            <MudSelectItem Value="@i.Id">@i.Designation</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField T="int" Label="Stock Initial"  @bind-Value="article.StockInitial" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField T="float" Label="Description" @bind-Value="article.PrixAchat" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+                        <ActivatorContent>
+                            <MudFab Color="Color.Success"
+                                    StartIcon="@Icons.Material.Filled.AttachFile" />
+                        </ActivatorContent>
+                    </MudFileUpload>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" Class="ml-auto" OnClick="Valide">Valider</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    ArticleAddModel article;
+    bool old;
+    bool success;
+    string[] errors = { };
+    [Inject] ArticleService datacontext { get; set; }
+    [Inject] ISnackbar snackbar { get; set; }
+
+    List<Category> Catégories = new();
+
+    [Parameter] public int Id { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+
+
+    string path = "", paths = "";
+    IBrowserFile photo;
+    long maxFileSize = 1024 * 1024 * 15;
+    private async void UploadFiles(IBrowserFile file)
+    {
+        try
+        {
+            photo = file;
+            string dossier = Path.Combine(Environment.CurrentDirectory, "wwwroot", "images");
+            string sousdossier = Path.Combine(Environment.CurrentDirectory, "wwwroot", "images", "produits");
+
+            if (!Directory.Exists(dossier)) Directory.CreateDirectory(dossier);
+            if (!Directory.Exists(sousdossier)) Directory.CreateDirectory(sousdossier);
+
+            path = Path.Combine("images", "produits", article.Designation + photo.Name).Replace('\\', '/');
+            paths = Path.Combine(Environment.CurrentDirectory, "wwwroot", "images", "produits", article.Designation + photo.Name);
+            await using FileStream fs = new(paths, FileMode.Create);
+            await photo.OpenReadStream(maxFileSize).CopyToAsync(fs);
+            article.Image = path;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            path = ex.Message;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id == 0)
+        {
+            article = new();
+            old = false;
+        }
+        else
+        {
+            article = await datacontext.Get(Id);
+            old = true;
+        }
+
+        Catégories = (await datacontext.GetCategories()).ToList();
+    }
+
+    async void Valide()
+    {
+        article.Designation = article.Designation.ToUpper();
+
+        if (article.Image == null)
+        {
+            var photo = "article.png";
+            article.Image = Path.Combine("images", "produits", photo).Replace('\\', '/');
+        }
+
+        Response rep;
+        if (old)
+            rep = await datacontext.Update(article);
+        else
+            rep = await datacontext.Add(article);
+
+        snackbar.Add(rep.Message, (Severity)rep.TypeResponse);
+    }
+}

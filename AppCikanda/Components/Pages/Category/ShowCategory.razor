@@ -3,7 +3,7 @@
     <DialogContent>
         <MudGrid>
             <MudItem xs="12">
-                <MudText Typo="Typo.h4">@category.Libellé</MudText>
+                <MudText Typo="Typo.h4">@category.Designation</MudText>
             </MudItem>
         </MudGrid>
         <MudTable Items="@list" Dense="@true" Hover="@true" Bordered="@false" Striped="@true">
@@ -15,9 +15,9 @@
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Nr">@context.Num</MudTd>
-                <MudTd DataLabel="Désignation">@context.Désignation</MudTd>
+                <MudTd DataLabel="Désignation">@context.Designation</MudTd>
                 <MudTd DataLabel="Stock initial">@context.StockInitial</MudTd>
-                <MudTd DataLabel="Prix d'achat">@context.PrixAchat</MudTd>
+                <MudTd DataLabel="Prix d'achat">@context.PrixAchat.ToString()</MudTd>
             </RowTemplate>
             <PagerContent>
                 <MudTablePager />
@@ -27,26 +27,26 @@
 </MudDialog>
 
 @code {
-    Category category;
-    [Parameter] public Guid Id { get; set; }
-    List<CategoryProduit> list = new List<CategoryProduit>();
+    CategoryViewModel category;
+    [Parameter] public int Id { get; set; }
+    List<CategoryProduitViewModel> list = new List<CategoryProduitViewModel>();
     [Inject] CategoryService datacontext { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        category = await datacontext.Get(Id);
+        category = await datacontext.Open(Id);
 
         int num = 1;
-        foreach (var i in category.Produits)
+        foreach (var i in category.Articles)
         {
-            list.Add(new CategoryProduit()
+            list.Add(new CategoryProduitViewModel
                 {
                     Num = num,
-                    Code = i.Id,
-                    Désignation = i.Designation,
-                    PrixAchat = i.PrixAchat + " " + i.Monnaie,
+                    Designation = i.Designation,
                     StockInitial = i.StockInitial,
+                    PrixAchat = i.PrixAchat
                 });
+                num++;
         }
     }
 }

@@ -4,22 +4,22 @@
         <MudForm @bind-IsValid="@success" @bind-Errors="@errors" Class="mx-auto">
             <MudGrid>
                 <MudItem xs="12" sm="6" md="6">
-                    <MudTextField T="string" Label="Désignation" Required="true" RequiredError="La désignation de l'article est obligatoire !" @bind-Value="produit.Designation" />
+                    <MudTextField T="string" Label="Désignation" Required="true" RequiredError="La désignation de l'article est obligatoire !" @bind-Value="article.Designation" />
                 </MudItem>
                 <MudItem xs="12" sm="6" md="6">
-                    <MudSelect Dense="true" T="Guid" Label="Sélectionner une catégorie" Variant="Variant.Text" @bind-Value="produit.IdCategory"
+                    <MudSelect Dense="true" T="int" Label="Sélectionner une catégorie" Variant="Variant.Text" @bind-Value="article.IdCategory"
                                Required="true" RequiredError="La catégorie est requise !">
                         @foreach (var i in Catégories)
                         {
-                            <MudSelectItem Value="@i.Id">@i.Libellé</MudSelectItem>
+                            <MudSelectItem Value="@i.Id">@i.Designation</MudSelectItem>
                         }
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" sm="6" md="6">
-                    <MudTextField T="int" Label="Stock Initial"  @bind-Value="produit.StockInitial" />
+                    <MudTextField T="int" Label="Stock Initial"  @bind-Value="article.StockInitial" />
                 </MudItem>
                 <MudItem xs="12" sm="6" md="6">
-                    <MudTextField T="int" Label="Description" @bind-Value="produit.PrixAchat" />
+                    <MudTextField T="float" Label="Description" @bind-Value="article.PrixAchat" />
                 </MudItem>
                 <MudItem xs="12">
                     <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
@@ -39,16 +39,16 @@
 
 
 @code {
-    Produit produit;
+    ArticleAddModel article;
     bool old;
     bool success;
     string[] errors = { };
-    [Inject] ProduitService datacontext { get; set; }
+    [Inject] ArticleService datacontext { get; set; }
     [Inject] ISnackbar snackbar { get; set; }
 
-    List<Category> Catégories = new();
+    List<CategoryViewModel> Catégories = new();
 
-    [Parameter] public Guid Id { get; set; }
+    [Parameter] public int Id { get; set; }
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
 
@@ -66,11 +66,11 @@
             if (!Directory.Exists(dossier)) Directory.CreateDirectory(dossier);
             if (!Directory.Exists(sousdossier)) Directory.CreateDirectory(sousdossier);
 
-            path = Path.Combine("images", "produits", produit.Designation + photo.Name).Replace('\\', '/');
-            paths = Path.Combine(Environment.CurrentDirectory, "wwwroot", "images", "produits", produit.Designation + photo.Name);
+            path = Path.Combine("images", "produits", article.Designation + photo.Name).Replace('\\', '/');
+            paths = Path.Combine(Environment.CurrentDirectory, "wwwroot", "images", "produits", article.Designation + photo.Name);
             await using FileStream fs = new(paths, FileMode.Create);
             await photo.OpenReadStream(maxFileSize).CopyToAsync(fs);
-            produit.Image = path;
+            article.Image = path;
             StateHasChanged();
         }
         catch (Exception ex)
@@ -81,14 +81,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id == Guid.Empty)
+        if (Id == 0)
         {
-            produit = new();
+            article = new();
             old = false;
         }
         else
         {
-            produit = await datacontext.Get(Id);
+            article = await datacontext.Get(Id);
             old = true;
         }
 
@@ -97,19 +97,19 @@
 
     async void Valide()
     {
-        produit.Designation = produit.Designation.ToUpper();
+        article.Designation = article.Designation.ToUpper();
 
-        if (produit.Image == null)
+        if (article.Image == null)
         {
-            var photo = "produit.png";
-            produit.Image = Path.Combine("images", "produits", photo).Replace('\\', '/');
+            var photo = "article.png";
+            article.Image = Path.Combine("images", "produits", photo).Replace('\\', '/');
         }
 
         Response rep;
         if (old)
-            rep = await datacontext.Update(produit);
+            rep = await datacontext.Update(article);
         else
-            rep = await datacontext.Add(produit);
+            rep = await datacontext.Add(article);
 
         snackbar.Add(rep.Message, (Severity)rep.TypeResponse);
     }

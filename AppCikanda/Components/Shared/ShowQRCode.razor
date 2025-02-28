@@ -10,14 +10,14 @@
 
 @code {
     string imageQRCode = "";
-    [Parameter] public Guid Id { get; set; }
+    [Parameter] public string? Id { get; set; }
 
     MudBarcode _barcode;
     ZXing.BarcodeFormat _barcodeFormat = ZXing.BarcodeFormat.QR_CODE;
 
     protected override void OnInitialized()
     {
-        string txtId = Id.ToString();
+        string txtId = Id!.ToString();
         imageQRCode = txtId;
         StateHasChanged();
     }

@@ -3,23 +3,23 @@
     <DialogContent>
         <MudGrid>
             <MudItem xs="6" Class="d-flex flex-grow-1 gap-4">
-                <MudText Class="ml-3 align-self-center" Typo="Typo.h4">@produit.Designation </MudText>
+                <MudText Class="ml-3 align-self-center" Typo="Typo.h4">@article.Designation </MudText>
             </MudItem>
             <MudItem xs="6">
-                <ShowQRCode Id="produit.Id" />
+                <ShowQRCode Id="article.Code" />
             </MudItem>
         </MudGrid>
         <MudPaper MaxWidth="MaxWidth.Large" Class="pa-4" Width="100%" Height="100%" Elevation="0">
-            @if (produit.PrixVentes != null)
+            @if (article.PrixVentes != null)
             {
-                <MudTable Items="@produit.PrixVentes.Where(e=>e.Active).ToList()" Dense="@true" Hover="@true" Bordered="@false" Striped="@true">
+                <MudTable Items="@article.PrixVentes" Dense="@true" Hover="@true" Bordered="@false" Striped="@true">
                     <HeaderContent>
                         <MudTh>Point de vente</MudTh>
                         <MudTh>Prix de vente</MudTh>
                     </HeaderContent>
                     <RowTemplate>
-                        <MudTd DataLabel="Point de vente">@context.PointVente.Designation</MudTd>
-                        <MudTd DataLabel="Prix de vente">@context.Cout @context.Monnaie</MudTd>
+                        <MudTd DataLabel="Point de vente">@context.PointVente</MudTd>
+                        <MudTd DataLabel="Prix de vente">@context.PrixVente.ToString()</MudTd>
                     </RowTemplate>
                     <PagerContent>
                         <MudTablePager />
@@ -31,13 +31,13 @@
 </MudDialog>
 
 @code {
-    Produit produit;
-    [Parameter] public Guid Id { get; set; }
+    ArticleViewModel article;
+    [Parameter] public int Id { get; set; }
     string Qrcode = "";
-    [Inject] ProduitService datacontext { get; set; }
+    [Inject] ArticleService datacontext { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        produit = await datacontext.Get(Id);
+        article = await datacontext.Open(Id);
     }
 }

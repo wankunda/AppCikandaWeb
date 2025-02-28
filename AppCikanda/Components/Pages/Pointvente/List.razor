@@ -1,4 +1,4 @@
-﻿@page "/list-pointsdevente"
+﻿@page "/pointventes"
 
 
 <MudTable Items="@Elements" Dense="true" Hover="true" Bordered="true" Striped="true" Filter="new Func<PointVenteViewModel,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
@@ -21,13 +21,13 @@
         <MudTd DataLabel="Désignation">@context.Designation</MudTd>
         <MudTd>
             <MudTooltip Text="Voir plus" Color="Color.Primary" Placement="Placement.Top" Arrow="true">
-                <MudIconButton Color="Color.Primary" Variant="Variant.Filled" OnClick="()=>show(context.Code)" Icon="@Icons.Material.Filled.ChevronRight" />
+                <MudIconButton Color="Color.Primary" Variant="Variant.Filled" OnClick="()=>show(context.Id)" Icon="@Icons.Material.Filled.ChevronRight" />
             </MudTooltip>
             <MudTooltip Text="Modifier" Color="Color.Success" Placement="Placement.Top" Arrow="true">
-                <MudIconButton Color="Color.Success" Variant="Variant.Filled" OnClick="()=>edit(context.Code)" Icon="@Icons.Material.Filled.Edit" />
+                <MudIconButton Color="Color.Success" Variant="Variant.Filled" OnClick="()=>edit(context.Id)" Icon="@Icons.Material.Filled.Edit" />
             </MudTooltip>
             <MudTooltip Text="Supprimer" Color="Color.Error" Placement="Placement.Top" Arrow="true">
-                <MudIconButton Color="Color.Error" Variant="Variant.Filled" OnClick="()=>delete(context.Code)" Icon="@Icons.Material.Filled.Delete" />
+                <MudIconButton Color="Color.Error" Variant="Variant.Filled" OnClick="()=>delete(context.Id)" Icon="@Icons.Material.Filled.Delete" />
             </MudTooltip>
         </MudTd>
     </RowTemplate>
@@ -61,23 +61,12 @@
 
     async void GetData()
     {
-        var data = await datacontext.GetAll();
+        Elements = (await datacontext.GetAll()).ToList();
 
-        int num = 1;
-        foreach (var i in data)
-        {
-            Elements.Add(new PointVenteViewModel
-                {
-                    Num = num,
-                    Code = i.Id,
-                    Designation = i.Designation
-                });
-            num++;
-        }
         StateHasChanged();
     }
 
-    async void delete(Guid id)
+    async void delete(int id)
     {
         bool? result = await DialogService.ShowMessageBox(
             "Suppression",
@@ -100,14 +89,14 @@
             GetData();
     }
 
-    async void show(Guid id)
+    async void show(int id)
     {
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.ExtraLarge, FullWidth = true, Position = DialogPosition.TopCenter };
         var parameters = new DialogParameters<ShowPointVente> { { x => x.Id, id } };
         await DialogService.ShowAsync<ShowPointVente>("Detail du point de vente", parameters, maxWidth);
     }
 
-    async void edit(Guid id)
+    async void edit(int id)
     {
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true };
         var parameters = new DialogParameters<AddPointVente> { { x => x.Id, id } };

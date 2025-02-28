@@ -4,7 +4,7 @@
         <MudForm @bind-IsValid="@success" @bind-Errors="@errors" Class="mx-auto">
             <MudGrid>
                 <MudItem xs="12">
-                    <MudTextField T="string" Label="Catégorie" Required="true" RequiredError="La désignation de la catégorie est obligatoire !" @bind-Value="category.Libellé" />
+                    <MudTextField T="string" Label="Catégorie" Required="true" RequiredError="La désignation de la catégorie est obligatoire !" @bind-Value="category.Designation" />
                 </MudItem>
             </MudGrid>
         </MudForm>
@@ -15,19 +15,19 @@
 </MudDialog>
 
 @code {
-    Category category;
+    CategoryAddModel category;
     bool old;
     bool success;
     string[] errors = { };
     [Inject] CategoryService datacontext { get; set; }
     [Inject] ISnackbar snackbar { get; set; }
 
-    [Parameter] public Guid Id { get; set; }
+    [Parameter] public int Id { get; set; }
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id == Guid.Empty)
+        if (Id == 0)
         {
             category = new();
             old = false;

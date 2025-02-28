@@ -1,90 +1,210 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ModelsServices.Data;
-using ModelsServices.Models;
-using ModelsServices.Utilisties;
-using ModelsServices.Utilities;
+using Models;
+using Utilities;
+using ViewModels;
 
-namespace ModelsServices.Services
+namespace Services
 {
     public class PointVenteService
     {
-        AppDbContext bdContext;
+        AppLocalDbContext bdContext;
         public PointVenteService()
         {
-            bdContext = new AppDbContext();
+            bdContext = new AppLocalDbContext();
         }
 
-        public async Task<Response> Add(PointVente Model)
+        public async Task<Response> Add(PointVenteAddModel Model)
         {
+            PointVente pointVente = new PointVente
+            {
+                Code = Model.Code.ToString(),
+                DateCreated = Model.DateCreated.ToShortDateString(),
+                Delete = false,
+                Designation = Model.Designation,
+                Synchronized = false,
+            };
             try
             {
-                await bdContext.PointVentes.AddAsync(Model);
+                var reponse = await bdContext.PointVentes.AddAsync(pointVente);
                 await bdContext.SaveChangesAsync();
-                return new Response() { Message = "Point de vente créé avec succès !!", TypeResponse = (int)TypeResponse.Success }; ;
-            }
-            catch (Exception ex)
-            {
-                return new Response() { Message = ex.Message, TypeResponse = (int)TypeResponse.Error }; ;
-            }
-        }
-
-        public async Task<IEnumerable<PointVente>?> GetAll()
-        {
-            return await bdContext.PointVentes
-                .OrderBy(x => x.Designation)
-                .ToListAsync();
-        }
-
-        public async Task<Response> Delete(Guid Id)
-        {
-            try
-            {
-                var user = await bdContext.PointVentes.FirstOrDefaultAsync(e => e.Id == Id);
-                if (user != null)
+                return new Response()
                 {
-                    bdContext.PointVentes.Remove(user);
-                    await bdContext.SaveChangesAsync();
-                    return new Response() { Message = "Point de vente supprimé avec succès !!", TypeResponse = (int)TypeResponse.Success }; ;
-                }
-                return new Response() { Message = "Erreur de suppression des données", TypeResponse = (int)TypeResponse.Warning };
+                    TypeResponse = (int)TypeResponse.Success,
+                    Message = "Point de vente bien sauvegardé dans la base des données",
+                };
             }
             catch (Exception ex)
             {
-                return new Response() { Message = ex.Message, TypeResponse = (int)TypeResponse.Error }; ;
+                {
+                    return new Response()
+                    {
+                        TypeResponse = (int)TypeResponse.Error,
+                        Message = $"Impossible d'ajouter un point de vente. Voir {ex.Message}",
+                    };
+                }
             }
         }
 
-        public async Task<PointVente>? Open(Guid id)
-        {
-            return await bdContext.PointVentes
-                .Include(e => e.PrixVentes)
-                .ThenInclude(e => e.Produit)
-                .FirstOrDefaultAsync(e => e.Id == id);
-        }
-
-        public async Task<Response> Update(PointVente Model)
+        public async Task<IEnumerable<PointVenteViewModel>?> GetAll()
         {
             try
             {
-                Model.DateAnsyc = DateTime.Now;
-                Model.DownAsync = true;
-                Model.UpAsync = false;
-                bdContext.PointVentes.Update(Model);
-                await bdContext.SaveChangesAsync();
-                return new Response() { Message = "Point de vente mis à jour avec succès !!", TypeResponse = (int)TypeResponse.Success }; ;
+                var reponse = await bdContext.PointVentes.ToListAsync();
+                List<PointVenteViewModel> pointVentes = new();
+                int id = 1;
+                foreach (var i in reponse)
+                {
+                    if (!i.Delete)
+                    {
+                        pointVentes.Add(new PointVenteViewModel()
+                        {
+                            Code = i.Code,
+                            DateCreated = i.DateCreated,
+                            Designation = i.Designation,
+                            Id = i.Id,
+                            Num = id,
+                            DateUpdated = i.DateUpdated,
+                            Synchronized = i.Synchronized,
+                            LastSynchronized = i.LastSynchronized,
+                        }
+                        );
+                        id++;
+                    }
+                }
+                return pointVentes;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new Response() { Message = ex.Message, TypeResponse = (int)TypeResponse.Error }; ;
+                return new List<PointVenteViewModel>();
             }
         }
 
-        public async Task<PointVente>? Get(Guid id)
+        public async Task<Response> Delete(int Id)
         {
-            return await bdContext.PointVentes
-                .Include(e => e.PrixVentes)
-                .ThenInclude(e => e.Produit)
-                .FirstOrDefaultAsync(e => e.Id == id);
+            try
+            {
+                var reponse = await bdContext.PointVentes.FirstOrDefaultAsync(e => e.Id == Id);
+                if (reponse != null)
+                {
+                    reponse.Delete = true;
+                    reponse.Synchronized = false;
+                    bdContext.PointVentes.Update(reponse);
+                    await bdContext.SaveChangesAsync();
+                    return new Response()
+                    {
+                        TypeResponse = (int)TypeResponse.Success,
+                        Message = "Point de vente supprimé de la base des données",
+                    };
+                }
+                else
+                    return new Response()
+                    {
+                        TypeResponse = (int)TypeResponse.Warning,
+                        Message = $"Erreur de suppression du point de vente",
+                    };
+            }
+            catch (Exception ex)
+            {
+                {
+                    return new Response()
+                    {
+                        TypeResponse = (int)TypeResponse.Error,
+                        Message = $"Impossible de supprimer ce point de vente. Voir {ex.Message}",
+                    };
+                }
+            }
+        }
+
+        public async Task<Response> Update(PointVenteAddModel Model)
+        {
+            PointVente pointVente = new PointVente
+            {
+                Code = Model.Code.ToString(),
+                DateCreated = Model.DateCreated.ToShortDateString(),
+                DateUpdated = Model.DateUpdated.ToShortDateString(),
+                LastSynchronized = Model.LastSynchronized.ToShortDateString(),
+                Delete = Model.Delete,
+                Designation = Model.Designation,
+                Id = Model.Id,
+                Synchronized = Model.Synchronized,
+            };
+            try
+            {
+                bdContext.PointVentes.Update(pointVente);
+                await bdContext.SaveChangesAsync();
+
+                return new Response()
+                {
+                    TypeResponse = (int)TypeResponse.Success,
+                    Message = "Point de vente mis à jour dans la base des données",
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Response()
+                {
+                    TypeResponse = (int)TypeResponse.Error,
+                    Message = $"Impossible de modifier ce point de vente. Voir {ex.Message}",
+                };
+            }
+        }
+
+        public async Task<PointVenteViewModel>? Open(int id)
+        {
+            try
+            {
+                var reponse = await bdContext.PointVentes
+                    .Include(e => e.PrixVentes)
+                    .FirstOrDefaultAsync(e => e.Id == id);
+                var pointVente = new PointVenteViewModel()
+                {
+                    Code = reponse.Code,
+                    DateCreated = reponse.DateCreated,
+                    DateUpdated = reponse.DateUpdated,
+                    LastSynchronized = reponse.LastSynchronized,
+                    Designation = reponse.Designation,
+                    Synchronized = reponse.Synchronized,
+                    PrixVentes = reponse.PrixVentes.Where(e => e.Active).Select(e => new PrixPointVenteViewModel
+                    {
+                        Synchronized = e.Synchronized,
+                        DateCreated = e.DateCreated,
+                        Article = e.Article.Designation,
+                        PrixVente = new Money(e.Value, e.Monnaie),
+                        LastSynchronized = e.LastSynchronized,
+                    }).ToList()
+                };
+                return pointVente;
+            }
+            catch
+            {
+                return new PointVenteViewModel();
+            }
+        }
+
+        public async Task<PointVenteAddModel>? Get(int id)
+        {
+            try
+            {
+                var reponse = await bdContext.PointVentes
+                    .Include(e => e.PrixVentes)
+                    .FirstOrDefaultAsync(e => e.Id == id);
+                var pointVente = new PointVenteAddModel()
+                {
+                    Code = new Guid(reponse.Code),
+                    DateCreated = DateTime.Parse(reponse.DateCreated),
+                    DateUpdated = DateTime.Parse(reponse.DateUpdated),
+                    LastSynchronized = DateTime.Parse(reponse.LastSynchronized),
+                    Designation = reponse.Designation,
+                    Synchronized = reponse.Synchronized,
+                    Id = reponse.Id,
+                    Delete = reponse.Delete
+                };
+                return pointVente;
+            }
+            catch
+            {
+                return new PointVenteAddModel();
+            }
         }
     }
 }
