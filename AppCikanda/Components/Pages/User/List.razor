@@ -1,36 +1,33 @@
-﻿@page "/articles"
+﻿@page "/users"
 
-<MudTable Items="@Elements" Dense="true" Hover="true" Bordered="true" Striped="false"
-    Filter="new Func<ArticleViewModel,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+<MudTable Items="@Elements" Dense="true" Hover="true" Bordered="true" Striped="false" Filter="new Func<UserViewModel,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Liste des articles</MudText>
+        <MudText Typo="Typo.h6">Liste des catégories</MudText>
         <MudSpacer />
         <MudTextField @bind-Value="searchString1" Placeholder="Rechercher" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         <MudSpacer />
-        <MudTooltip Text="Ajouter un article" Color="Color.Primary" Placement="Placement.Top" Arrow="true">
+        <MudTooltip Text="Ajouter un utilisateur" Color="Color.Primary" Placement="Placement.Top" Arrow="true">
             <MudIconButton Color="Color.Primary" Variant="Variant.Filled" OnClick="add" Icon="@Icons.Material.Filled.Add" />
         </MudTooltip>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>Num</MudTh>
         <MudTh></MudTh>
-        <MudTh>Catégorie</MudTh>
-        <MudTh>Désignation</MudTh>
-        <MudTh>Prix d'achat</MudTh>
-        <MudTh>Stock initial</MudTh>
-        <MudTh>Seuil de sécurité</MudTh>
+        <MudTh>Nom</MudTh>
+        <MudTh>Username</MudTh>
+        <MudTh>Role</MudTh>
+        <MudTh>Adresse mail</MudTh>
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Num">@context.Num</MudTd>
-        <MudTd Class="d-flex pa-1 justify-center">
-            <MudImage Src="@context.Image" Height="40" Alt="@context.Designation" Elevation="6" Class="rounded-lg" />
+        <MudTd Class="d-flex justify-center pa-1">
+            <MudImage Src="@context.Photo" Height="50" Alt="@context.NomComplet" Elevation="6" Class="rounded-circle" />
         </MudTd>
-        <MudTd DataLabel="Catégorie">@context.Category</MudTd>
-        <MudTd DataLabel="Désignation">@context.Designation</MudTd>
-        <MudTd DataLabel="Prix d'achat">@context.PrixAchat</MudTd>
-        <MudTd DataLabel="Stock de départ">@context.StockInitial</MudTd>
-        <MudTd DataLabel="Stock de sécurité">@context.StockSecurite</MudTd>
+        <MudTd DataLabel="Catégorie">@context.NomComplet</MudTd>
+        <MudTd DataLabel="Désignation">@context.Username</MudTd>
+        <MudTd DataLabel="Prix d'achat">@context.UserRole</MudTd>
+        <MudTd DataLabel="Stock de départ">@context.Email</MudTd>
         <MudTd>
             <MudTooltip Text="Voir plus" Color="Color.Primary" Placement="Placement.Top" Arrow="true">
                 <MudIconButton Color="Color.Primary" Variant="Variant.Filled" OnClick="()=>show(context.Id)" Icon="@Icons.Material.Filled.ChevronRight" />
@@ -50,18 +47,18 @@
 
 <div class="d-flex flex-wrap mt-4">
     <div style="min-width:200px;">
-        <MudText Class="align-self-center d-inline">Article sélectionné : @selectedItem1?.Designation, Stock initial : @selectedItem1?.StockInitial pièces, Prix d'achat : @selectedItem1?.PrixAchat.ToString()</MudText>
+        <MudText Class="align-self-center d-inline">Utilisateur sélectionné : @selectedItem1?.NomComplet</MudText>
     </div>
 </div>
 
 
 @code {
     private string searchString1 = "";
-    private ArticleViewModel selectedItem1 = null;
+    private UserViewModel selectedItem1 = null;
     [Inject] private IDialogService DialogService { get; set; }
-    ﻿[Inject] ArticleService datacontext { get; set; }
+    ﻿[Inject] UserService datacontext { get; set; }
     [Inject] ISnackbar snackbar { get; set; }
-    private List<ArticleViewModel> Elements = new List<ArticleViewModel>();
+    private List<UserViewModel> Elements = new List<UserViewModel>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -79,7 +76,7 @@
     async void add()
     {
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
-        var dialog = await DialogService.ShowAsync<AddArticle>("Ajouter un article",maxWidth);
+        var dialog = await DialogService.ShowAsync<AddUser>("Ajouter un utilisateur",maxWidth);
         var result = await dialog.Result;
         if (result.Canceled)
             GetData();
@@ -87,16 +84,16 @@
 
     async void show(int id)
     {
-        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.TopCenter };
-        var parameters = new DialogParameters<ShowArticle> { { x => x.Id, id } };
-        await DialogService.ShowAsync<ShowArticle>("Detail de l'article", parameters, maxWidth);
+        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.TopCenter };
+        var parameters = new DialogParameters<ShowUser> { { x => x.Id, id } };
+        await DialogService.ShowAsync<ShowUser>("Detail de l'utilisateur", parameters, maxWidth);
     }
 
     async void edit(int id)
     {
-        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
-        var parameters = new DialogParameters<AddArticle> { { x => x.Id, id } };
-        var dialog = await DialogService.ShowAsync<AddArticle>("Modifier un article", parameters, maxWidth);
+        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true };
+        var parameters = new DialogParameters<AddUser> { { x => x.Id, id } };
+        var dialog = await DialogService.ShowAsync<AddUser>("Modifier un utilisateur", parameters, maxWidth);
         var result = await dialog.Result;
         if (result.Canceled)
             GetData();
@@ -106,7 +103,7 @@
     {
         bool? result = await DialogService.ShowMessageBox(
             "Suppression",
-            "Voulez - vous supprimer cet article ?",
+            "Voulez - vous supprimer cet utilisateur ?",
             yesText: "Confirmer !", cancelText: "Annuler");
         if (result == true)
         {
@@ -116,15 +113,19 @@
         }
     }
 
-    private bool FilterFunc1(ArticleViewModel element) => FilterFunc(element, searchString1);
+    private bool FilterFunc1(UserViewModel element) => FilterFunc(element, searchString1);
 
-    private bool FilterFunc(ArticleViewModel element, string searchString)
+    private bool FilterFunc(UserViewModel element, string searchString)
     {
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
-        if (element.Designation.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (element.NomComplet.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        if (element.Category.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (element.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.UserRole.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Username.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         return false;
     }

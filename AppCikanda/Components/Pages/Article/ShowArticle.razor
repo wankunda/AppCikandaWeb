@@ -2,17 +2,22 @@
 <MudDialog>
     <DialogContent>
         <MudGrid>
-            <MudItem xs="6" Class="d-flex flex-grow-1 gap-4">
-                <MudText Class="ml-3 align-self-center" Typo="Typo.h4">@article.Designation </MudText>
-            </MudItem>
-            <MudItem xs="6">
-                <ShowQRCode Id="article.Code" />
+            <MudItem xs="12" Class="d-flex justify-space-around flex-grow-1 gap-4">
+                <MudText Class="ml-3 align-self-center" Typo="Typo.h5" Color="Color.Secondary">@article.Designation </MudText>
+                <MudImage Elevation="1" Height="200" Src="@article.Image" Class="rounded-lg" ObjectFit="ObjectFit.Cover" />
+                <ShowQRCode Id="@article.Code" />
             </MudItem>
         </MudGrid>
         <MudPaper MaxWidth="MaxWidth.Large" Class="pa-4" Width="100%" Height="100%" Elevation="0">
             @if (article.PrixVentes != null)
             {
                 <MudTable Items="@article.PrixVentes" Dense="@true" Hover="@true" Bordered="@false" Striped="@true">
+                    <ToolBarContent>
+                        <MudButton Color="Color.Primary" EndIcon="@Icons.Material.Filled.Add" OnClick="()=> FixerPrix(Id)" Variant="Variant.Filled">Fixer un prix de vente</MudButton>
+                        <MudSpacer/>
+                        <MudButton Color="Color.Info" EndIcon="@Icons.Material.Filled.Print" OnClick="()=> FixerPrix(Id)" Variant="Variant.Filled">Imprimer une etiquette</MudButton>
+                    </ToolBarContent>
+
                     <HeaderContent>
                         <MudTh>Point de vente</MudTh>
                         <MudTh>Prix de vente</MudTh>
@@ -22,7 +27,7 @@
                         <MudTd DataLabel="Prix de vente">@context.PrixVente.ToString()</MudTd>
                     </RowTemplate>
                     <PagerContent>
-                        <MudTablePager />
+                        <MudTablePager HideRowsPerPage="true" />
                     </PagerContent>
                 </MudTable>
             }
@@ -35,9 +40,17 @@
     [Parameter] public int Id { get; set; }
     string Qrcode = "";
     [Inject] ArticleService datacontext { get; set; }
+    [Inject] private IDialogService DialogService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         article = await datacontext.Open(Id);
+    }
+
+    async void FixerPrix(int id)
+    {
+        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true };
+        var parameters = new DialogParameters<AddPrixVente> { { x => x.Id, id } };
+        var dialog = await DialogService.ShowAsync<AddPrixVente>("Fixer un prix de vente", parameters, maxWidth);
     }
 }

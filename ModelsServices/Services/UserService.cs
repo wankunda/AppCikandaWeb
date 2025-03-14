@@ -32,6 +32,12 @@ namespace Services
                 Synchronized = false,
             };
 
+            var exist = await bdContext.Users.FirstOrDefaultAsync(e => e.Email == user.Email);
+            if (exist != null)
+            {
+                return new Response() { Message = "Cette adresse mail est déjà utilisée par un autre utilisateur", TypeResponse = (int)TypeResponse.Warning };
+            }
+
             try
             {
                 await bdContext.Users.AddAsync(user);
@@ -122,8 +128,8 @@ namespace Services
                 {
                     Code = new Guid(reponse.Code),
                     DateCreated = DateTime.Parse(reponse.DateCreated),
-                    DateUpdated = DateTime.Parse(reponse.DateUpdated),
-                    LastSynchronized = DateTime.Parse(reponse.LastSynchronized),
+                    DateUpdated = reponse.DateUpdated == null ? DateTime.Now : DateTime.Parse(reponse.DateUpdated),
+                    LastSynchronized = reponse.LastSynchronized == null ? DateTime.Now : DateTime.Parse(reponse.LastSynchronized),
                     Id = reponse.Id,
                     Nom=reponse.Nom,
                     Postnom=reponse.Postnom,
@@ -216,14 +222,18 @@ namespace Services
 
                 if(user!=null)
                 {
-                    if(user.Password==login.Password)
+                    if(user.Password== new Password(login.Password).ToString())
                     {
+                        var pointvente = bdContext.PointVentes.FirstOrDefault(e => e.Id == user.IdPointVente);
                         SessionModel session = new SessionModel
                         {
                             Email = user.Email,
                             Photo = user.Photo,
                             Username = user.Username,
-                            UserRole = user.UserRole
+                            UserRole = user.UserRole,
+                            IdPointVente = user.IdPointVente,
+                            NomComplet = user.Nom + " " + user.Postnom + " " + user.Prenom,
+                            PointVente = pointvente?.Designation
                         };
                         return new Response
                         {
@@ -236,7 +246,7 @@ namespace Services
                         return new Response
                         {
                             Message = "Le mot de passe est incorrect, veuillez ressayer !!",
-                            TypeResponse = (int)TypeResponse.Success,
+                            TypeResponse = (int)TypeResponse.Warning,
                         };
                 }
             }
@@ -253,6 +263,26 @@ namespace Services
                 Message = "Erreur de connexion, Vérifiez vos identifiants !!",
                 TypeResponse = (int)TypeResponse.Error
             };
+        }
+
+
+        public async Task<IEnumerable<PointVenteViewModel>?> GetPointVentes()
+        {
+            var data = await bdContext.PointVentes
+                .Where(e => !e.Delete)
+                .ToListAsync();
+            List<PointVenteViewModel> list = new List<PointVenteViewModel>();
+
+            foreach (var i in data)
+            {
+                list.Add(new PointVenteViewModel
+                {
+                    Id = i.Id,
+                    Designation = i.Designation,
+                });
+            }
+
+            return list;
         }
     }
 }

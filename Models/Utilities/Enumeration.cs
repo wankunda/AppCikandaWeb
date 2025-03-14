@@ -1,4 +1,6 @@
-﻿namespace Utilities
+﻿using System.ComponentModel;
+
+namespace Utilities
 {
     public enum Monnaie
     {
@@ -10,8 +12,10 @@
     {
         None,
         Administrateur,
-        Simple_User,
-        Visitor,
+        Gérant,
+        Vendeur,
+        Caissier,
+        Comptable,
         Servante,
         Other
     }

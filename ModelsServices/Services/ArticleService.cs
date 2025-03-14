@@ -21,10 +21,12 @@ namespace Services
                 Code = Model.Code.ToString(),
                 DateCreated = Model.DateCreated.ToShortDateString(),
                 Delete = false,
+                Image = Model.Image,
                 Designation = Model.Designation,
                 Monnaie = (int)Model.Monnaie,
                 PrixAchat = Model.PrixAchat,
                 StockInitial = Model.StockInitial,
+                StockSecurite = Model.StockSecurite,
                 Synchronized = false
             };
 
@@ -64,6 +66,7 @@ namespace Services
                     Category = i.Category.Designation,
                     PrixAchat = new Money(i.PrixAchat, i.Monnaie),
                     StockInitial = i.StockInitial,
+                    StockSecurite = i.StockSecurite,
                     Synchronized = i.Synchronized
                 });
                 num++;
@@ -132,18 +135,17 @@ namespace Services
             {
                 var reponse = await bdContext.Articles
                     .Include(e => e.Category)
-                    .Include(e => e.PrixVentes)
-                    .ThenInclude(e => e.PointVente)
                     .FirstOrDefaultAsync(e => e.Id == id);
                 var article = new ArticleAddModel()
                 {
                     Code = new Guid(reponse.Code),
                     DateCreated = DateTime.Parse(reponse.DateCreated),
-                    DateUpdated = DateTime.Parse(reponse.DateUpdated),
-                    LastSynchronized = DateTime.Parse(reponse.LastSynchronized),
+                    DateUpdated = reponse.DateUpdated == null ? DateTime.Now : DateTime.Parse(reponse.DateUpdated),
+                    LastSynchronized = reponse.LastSynchronized == null ? DateTime.Now : DateTime.Parse(reponse.LastSynchronized),
                     Designation = reponse.Designation,
                     StockInitial = reponse.StockInitial,
                     PrixAchat = reponse.PrixAchat,
+                    Category = reponse.Category.Designation,
                     Monnaie = (Monnaie)reponse.Monnaie,
                     Synchronized = reponse.Synchronized,
                 };
@@ -171,6 +173,8 @@ namespace Services
                     DateUpdated = reponse.DateUpdated,
                     LastSynchronized = reponse.LastSynchronized,
                     Designation = reponse.Designation,
+                    Image = reponse.Image,
+                    StockSecurite = reponse.StockSecurite,
                     StockInitial = reponse.StockInitial,
                     PrixAchat = new Money(reponse.PrixAchat, reponse.Monnaie),
                     Synchronized = reponse.Synchronized,
@@ -200,6 +204,9 @@ namespace Services
                 DateUpdated=Model.DateUpdated.ToShortDateString(),
                 LastSynchronized=Model.LastSynchronized.ToShortDateString(),
                 Delete = Model.Delete,
+                Id = Model.Id,
+                Image= Model.Image,
+                StockSecurite = Model.StockSecurite,
                 Designation = Model.Designation,
                 Monnaie = (int)Model.Monnaie,
                 PrixAchat = Model.PrixAchat,

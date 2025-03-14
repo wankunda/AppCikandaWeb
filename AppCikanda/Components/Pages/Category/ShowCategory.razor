@@ -8,19 +8,21 @@
         </MudGrid>
         <MudTable Items="@list" Dense="@true" Hover="@true" Bordered="@false" Striped="@true">
             <HeaderContent>
-                <MudTh>Nr</MudTh>
+                <MudTh>Num</MudTh>
                 <MudTh>Désignation</MudTh>
                 <MudTh>Stock initial</MudTh>
+                <MudTh>Stock de sécurité</MudTh>
                 <MudTh>Prix d'achat</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd DataLabel="Nr">@context.Num</MudTd>
+                <MudTd DataLabel="Num">@context.Num</MudTd>
                 <MudTd DataLabel="Désignation">@context.Designation</MudTd>
                 <MudTd DataLabel="Stock initial">@context.StockInitial</MudTd>
+                <MudTd DataLabel="Stock de sécurité">@context.StockSeuil</MudTd>
                 <MudTd DataLabel="Prix d'achat">@context.PrixAchat.ToString()</MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager />
+                <MudTablePager HideRowsPerPage="true" />
             </PagerContent>
         </MudTable>
     </DialogContent>
@@ -44,6 +46,7 @@
                     Num = num,
                     Designation = i.Designation,
                     StockInitial = i.StockInitial,
+                    StockSeuil= i.StockSeuil,
                     PrixAchat = i.PrixAchat
                 });
                 num++;

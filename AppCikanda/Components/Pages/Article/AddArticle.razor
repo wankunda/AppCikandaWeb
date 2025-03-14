@@ -7,8 +7,8 @@
                     <MudTextField T="string" Label="Désignation" Required="true" RequiredError="La désignation de l'article est obligatoire !" @bind-Value="article.Designation" />
                 </MudItem>
                 <MudItem xs="12" sm="6" md="6">
-                    <MudSelect Dense="true" T="int" Label="Sélectionner une catégorie" Variant="Variant.Text" @bind-Value="article.IdCategory"
-                               Required="true" RequiredError="La catégorie est requise !">
+                    <MudSelect Dense="true" T="int" Label="@(article.Category==null ? "Sélectionner une catégorie" : article.Category)" Variant="Variant.Text" @bind-Value="article.IdCategory"
+                    Required="true" RequiredError="La catégorie est requise !">
                         @foreach (var i in Catégories)
                         {
                             <MudSelectItem Value="@i.Id">@i.Designation</MudSelectItem>
@@ -19,13 +19,16 @@
                     <MudTextField T="int" Label="Stock Initial"  @bind-Value="article.StockInitial" />
                 </MudItem>
                 <MudItem xs="12" sm="6" md="6">
-                    <MudTextField T="float" Label="Description" @bind-Value="article.PrixAchat" />
+                    <MudTextField T="int" Label="Seuil de sécurité" @bind-Value="article.StockSecurite" />
                 </MudItem>
-                <MudItem xs="12">
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField T="float" Label="Prix d'achat" @bind-Value="article.PrixAchat" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
                     <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
                         <ActivatorContent>
                             <MudFab Color="Color.Success"
-                                    StartIcon="@Icons.Material.Filled.AttachFile" />
+                            StartIcon="@Icons.Material.Filled.AttachFile" />
                         </ActivatorContent>
                     </MudFileUpload>
                 </MudItem>
@@ -99,7 +102,7 @@
     {
         article.Designation = article.Designation.ToUpper();
 
-        if (article.Image == null)
+        if (article.Image == null || article.Image == "")
         {
             var photo = "article.png";
             article.Image = Path.Combine("images", "produits", photo).Replace('\\', '/');

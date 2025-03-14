@@ -192,8 +192,8 @@ namespace Services
                 {
                     Code = new Guid(reponse.Code),
                     DateCreated = DateTime.Parse(reponse.DateCreated),
-                    DateUpdated = DateTime.Parse(reponse.DateUpdated),
-                    LastSynchronized = DateTime.Parse(reponse.LastSynchronized),
+                    DateUpdated = reponse.DateUpdated == null ? DateTime.Now : DateTime.Parse(reponse.DateUpdated),
+                    LastSynchronized = reponse.LastSynchronized == null ? DateTime.Now : DateTime.Parse(reponse.LastSynchronized),
                     Designation = reponse.Designation,
                     Synchronized = reponse.Synchronized,
                     Id = reponse.Id,

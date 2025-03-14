@@ -1,0 +1,55 @@
+﻿
+<MudDialog>
+    <DialogContent>
+        <MudForm @bind-IsValid="@success" @bind-Errors="@errors" Class="mx-auto">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField T="decimal" Label="Monnaie locale" Required="true" RequiredError="La valeur est obligatoire !"
+                    @bind-Value="model.MonnaieLocal" AdornmentText="CDF" />
+                </MudItem>
+
+                <MudItem xs="6">
+                    <MudTextField T="decimal" Label="Monnaie à convertir" Required="true" RequiredError="La valeur est obligatoire !" @bind-Value="model.MonnaieConvertie" />
+                </MudItem>
+                <MudItem xs="6">
+                    <MudSelect Dense="true" T="Monnaie" Label="@(model.Monnaie2==null ? "Sélectionner une catégorie" : model.Monnaie2.ToString())" 
+                    Variant="Variant.Text" @bind-Value="model.Monnaie2"
+                    Required="true" RequiredError="La monnaie est requise !">
+                        @foreach (var i in Monnaies)
+                        {
+                            <MudSelectItem Value="@i">@i.ToString()</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" Class="ml-auto" OnClick="Valide">Valider</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    TauxAddModel model;
+    bool success;
+    string[] errors = { };
+    [Inject] TauxService datacontext { get; set; }
+    [Inject] ISnackbar snackbar { get; set; }
+    List<Monnaie> Monnaies = Enum.GetValues(typeof(Monnaie))
+                            .Cast<Monnaie>()
+                            .ToList();
+
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = new();
+    }
+
+    async void Valide()
+    {
+        Response rep = await datacontext.Add(model);
+
+        snackbar.Add(rep.Message, (Severity)rep.TypeResponse);
+    }
+}

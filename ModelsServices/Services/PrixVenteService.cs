@@ -118,8 +118,8 @@ namespace Services
                 {
                     Code = new Guid(reponse.Code),
                     DateCreated = DateTime.Parse(reponse.DateCreated),
-                    DateUpdated = DateTime.Parse(reponse.DateUpdated),
-                    LastSynchronized = DateTime.Parse(reponse.LastSynchronized),
+                    DateUpdated = reponse.DateUpdated == null ? DateTime.Now : DateTime.Parse(reponse.DateUpdated),
+                    LastSynchronized = reponse.LastSynchronized == null ? DateTime.Now : DateTime.Parse(reponse.LastSynchronized),
                     Id = reponse.Id,
                     IdPointVente = reponse.IdPointVente,
                     Monnaie = (Monnaie)reponse.Monnaie,
@@ -196,6 +196,52 @@ namespace Services
             catch (Exception ex)
             {
                 return new Response() { Message = ex.Message, TypeResponse = (int)TypeResponse.Error }; ;
+            }
+        }
+
+        public async Task<ArticleViewModel>? GetArticle(int id)
+        {
+            try
+            {
+                var reponse = await bdContext.Articles
+                    .Include(e => e.Category)
+                    .FirstOrDefaultAsync(e => e.Id == id);
+                var article = new ArticleViewModel()
+                {
+                    Designation = reponse.Designation,
+                    PrixAchat = new Money(reponse.PrixAchat, reponse.Monnaie),
+                };
+                return article;
+            }
+            catch
+            {
+                return new ArticleViewModel();
+            }
+        }
+
+        public async Task<IEnumerable<PointVenteViewModel>?> GetPointVentes(int id)
+        {
+            try
+            {
+                var reponse = bdContext.PointVentes;
+                List<PointVenteViewModel> pointVentes = new();
+                foreach (var i in reponse)
+                {
+                    if (!i.Delete)
+                    {
+                        pointVentes.Add(new PointVenteViewModel()
+                        {
+                            Designation = i.Designation,
+                            Id = i.Id,
+                        }
+                        );
+                    }
+                }
+                return pointVentes;
+            }
+            catch (Exception)
+            {
+                return new List<PointVenteViewModel>();
             }
         }
     }

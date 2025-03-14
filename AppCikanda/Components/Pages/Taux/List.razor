@@ -1,0 +1,62 @@
+﻿@page "/taux"
+
+
+<MudTable Items="@Elements" Dense="true" Hover="true" Bordered="true" Striped="true">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Liste des taux d'échange</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Rechercher" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Num</MudTh>
+        <MudTh>Date du jour</MudTh>
+        <MudTh>Monnaie à convertir</MudTh>
+        <MudTh>Monnaie locale</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Num">@context.Num</MudTd>
+        <MudTd DataLabel="Num">@context.DateCreated</MudTd>
+        <MudTd DataLabel="Désignation">@context.MonnaieConvertie.ToString()</MudTd>
+        <MudTd DataLabel="Désignation">@context.MonnaieLocale.ToString()</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager HideRowsPerPage="true" />
+    </PagerContent>
+</MudTable>
+
+
+@code {
+    private string searchString1 = "";
+    [Inject] private IDialogService DialogService { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    [Inject] TauxService datacontext { get; set; }
+    [Inject] ISnackbar snackbar { get; set; }
+
+    private List<TauxViewModel> Elements = new List<TauxViewModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        GetData();
+    }
+
+    async void GetData()
+    {
+        Elements = (await datacontext.GetAll()).ToList();
+        StateHasChanged();
+    }
+
+    private bool FilterFunc1(TauxViewModel element) => FilterFunc(element, searchString1);
+
+    private bool FilterFunc(TauxViewModel element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.DateCreated.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.MonnaieLocale.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.MonnaieConvertie.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+}

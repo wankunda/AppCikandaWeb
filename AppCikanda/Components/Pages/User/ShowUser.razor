@@ -1,0 +1,33 @@
+﻿
+<MudDialog>
+    <DialogContent>
+        <MudPaper Class="pa-4 ma-2 d-flex justify-center">
+            <MudImage Src="@model.Photo" Width="400" Height="400" ObjectFit="ObjectFit.Cover" Alt="@model.Username" Elevation="25" Class="rounded-circle" />
+        </MudPaper>
+
+        <MudPaper Class="d-flex pa-2 ma-2 justify-space-around">
+            <MudPaper Class="justify-start flex-grow-1 gap-4" Elevation="0">
+                <MudAvatar Color="Color.Secondary">@model.NomComplet.Substring(0, 1).ToUpper()</MudAvatar>
+                <MudText Typo="Typo.h4">@model.Username</MudText>
+                <MudText Typo="Typo.body2">@model.Email</MudText>
+            </MudPaper>
+        </MudPaper>
+        
+        <MudPaper Class="pa-2 ma-2">
+            <MudText Typo="Typo.body1">Nom complet : @model.NomComplet</MudText>
+            <MudText Typo="Typo.body2">Le rôle : @model.UserRole</MudText>
+            <MudText Typo="Typo.caption" Align="Align.End">Créé le : @model.DateCreated</MudText>
+        </MudPaper>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    UserViewModel model;
+    [Parameter] public int Id { get; set; }
+    [Inject] UserService datacontext { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = await datacontext.Open(Id);
+    }
+}

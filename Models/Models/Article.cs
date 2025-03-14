@@ -7,6 +7,7 @@ public class Article : TableBase
     [MaxLength(25)]
     public string? Designation { get; set; }
     public int StockInitial { get; set; }
+    public int StockSecurite { get; set; }
     public float PrixAchat { get; set; }
     [MaxLength(1)]
     public int Monnaie { get; set; }

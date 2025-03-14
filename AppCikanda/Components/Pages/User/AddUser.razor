@@ -1,0 +1,105 @@
+﻿
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @bind-IsValid="@success" @bind-Errors="@errors" Class="mx-auto">
+            <MudGrid>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField T="string" Label="Nom" Required="true" RequiredError="Le nom  est obligatoire !" @bind-Value="user.Nom" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField T="string" Label="Post nom" @bind-Value="user.Postnom" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField T="string" Label="Prénom" @bind-Value="user.Prenom" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField T="string" Label="Email" Required="true" RequiredError="L'adresse mail est obligatoire !" @bind-Value="user.Email"
+                    Validation="@(new EmailAddressAttribute() {ErrorMessage = "Cette adresse mail est invalide"})" AdornmentIcon="@Icons.Material.Filled.Email"
+                    Adornment="Adornment.End" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField T="string" Label="Username" Required="true" RequiredError="Le nom de l'utilisateur est obligatoire !" @bind-Value="user.Username"
+                    AdornmentIcon="@Icons.Material.Filled.PersonPin" Adornment="Adornment.End" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="6">
+                    <MudSelect Dense="true" T="UserRole" Label="Sélectionner un rôle" Variant="Variant.Text" @bind-Value="user.UserRole"
+                    Required="true" RequiredError="Le rôle est requis !">
+                        @foreach (var i in Roles)
+                        {
+                            <MudSelectItem Value="@i">@i.ToString()</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="6">
+                    <MudSelect Dense="true" T="int" Label="Sélectionner un point de vente" Variant="Variant.Text" @bind-Value="user.IdPointVente">
+                        @foreach (var i in PointVentes)
+                        {
+                            <MudSelectItem Value="@i.Id">@i.Designation</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="Valide">Sauvegarder</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    UserAddModel user;
+
+    [Inject] UserService dataContext { get; set; }
+    [Inject] ISnackbar snackbar { get; set; }
+    bool old;
+    List<UserRole> Roles = Enum.GetValues(typeof(UserRole))
+                            .Cast<UserRole>()
+                            .ToList();
+    List<PointVenteViewModel> PointVentes;
+    bool success;
+    string[] errors = { };
+
+    [Parameter] public int Id { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        PointVentes = (await dataContext.GetPointVentes()).ToList();
+        if (Id == 0)
+        {
+            user = new();
+            old = false;
+        }
+        else
+        {
+            user = await dataContext.Get(Id);
+            old = true;
+        }
+    }
+
+    async void Valide()
+    {
+        user.Nom = user.Nom.ToUpper();
+        user.Postnom = user.Postnom.ToUpper();
+
+        if (user.Photo == "")
+        {
+            var photo = "user_240px.png";
+            user.Photo = Path.Combine("images", "users", photo).Replace('\\', '/');
+        }
+
+        Response rep;
+        if (old)
+            rep = await dataContext.Update(user);
+        else
+        {
+            user.Password = new Password("1234").ToString();
+            rep = await dataContext.Add(user);
+        }
+
+        snackbar.Add(rep.Message, (Severity)rep.TypeResponse);
+    }
+}

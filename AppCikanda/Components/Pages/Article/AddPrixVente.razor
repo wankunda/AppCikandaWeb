@@ -10,7 +10,7 @@
                     <MudField Label="Prix d'achat">@article.PrixAchat.ToString()</MudField>
                 </MudItem>
                 <MudItem xs="12">
-                    <MudSelect Dense="true" T="int" Label="@(pointvente==null ? "Sélectionner un point de vente" : pointvente)" Variant="Variant.Text" @bind-Value="model.IdPointVente"
+                    <MudSelect Dense="true" T="int" Label="Sélectionner un point de vente" Variant="Variant.Text" @bind-Value="model.IdPointVente"
                     Required="true" RequiredError="Le point de vente est obligatoire !">
                         @foreach (var i in pointVentes)
                         {
@@ -32,7 +32,6 @@
 @code {
     PrixVenteAddModel model;
     ArticleViewModel article;
-    string pointvente;
     bool success;
     string[] errors = { };
     [Inject] PrixVenteService datacontext { get; set; }
@@ -44,19 +43,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        model = await datacontext.Get(Id);
-        article = await datacontext.GetArticle(model.IdArticle);
-        pointVentes = (await datacontext.GetPointVentes(model.IdArticle)).ToList();
-        if(pointVentes.Count>0)
-        {
-            var pp = pointVentes.FirstOrDefault(e => e.Id == model.IdPointVente);
-            pointvente = pp != null ? pp.Designation : "";
-        }
+        model = new();
+        article = await datacontext.GetArticle(Id);
+        pointVentes = (await datacontext.GetPointVentes(Id)).ToList();
     }
 
     async void Valide()
     {
-        Response rep = await datacontext.Update(model);
+        model.IdArticle = Id;
+        Response rep = await datacontext.Add(model);
 
         snackbar.Add(rep.Message, (Severity)rep.TypeResponse);
     }

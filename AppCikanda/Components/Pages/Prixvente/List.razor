@@ -1,5 +1,100 @@
-﻿<h3>List</h3>
+﻿@page "/prixventes"
+
+<MudTable Items="@Elements" Dense="true" Hover="true" Bordered="true" Striped="false"
+    Filter="new Func<PrixVenteViewModel,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Liste des prix de vente</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Rechercher" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Num</MudTh>
+        <MudTh>Point de vente</MudTh>
+        <MudTh>Article</MudTh>
+        <MudTh>Prix de vente</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Num">@context.Num</MudTd>
+        <MudTd DataLabel="Catégorie">@context.PointVente</MudTd>
+        <MudTd DataLabel="Désignation">@context.Article</MudTd>
+        <MudTd DataLabel="Prix d'achat">@context.Value.ToString()</MudTd>
+        <MudTd>
+            <MudTooltip Text="Modifier" Color="Color.Success" Placement="Placement.Top" Arrow="true">
+                <MudIconButton Color="Color.Success" Variant="Variant.Filled" OnClick="()=>edit(context.Id)" Icon="@Icons.Material.Filled.Edit" />
+            </MudTooltip>
+            <MudTooltip Text="Supprimer" Color="Color.Error" Placement="Placement.Top" Arrow="true">
+                <MudIconButton Color="Color.Error" Variant="Variant.Filled" OnClick="()=>delete(context.Id)" Icon="@Icons.Material.Filled.Delete" />
+            </MudTooltip>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager HideRowsPerPage="true" />
+    </PagerContent>
+</MudTable>
+
+<div class="d-flex flex-wrap mt-4">
+    <div style="min-width:200px;">
+        <MudText Class="align-self-center d-inline">Article sélectionné : @selectedItem1?.Article, Prix de vente : @selectedItem1?.Value.ToString()</MudText>
+    </div>
+</div>
+
 
 @code {
+    private string searchString1 = "";
+    private PrixVenteViewModel selectedItem1 = null;
+    [Inject] private IDialogService DialogService { get; set; }
+    ﻿[Inject] PrixVenteService datacontext { get; set; }
+    [Inject] ISnackbar snackbar { get; set; }
+    private List<PrixVenteViewModel> Elements = new List<PrixVenteViewModel>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        GetData();
+    }
+
+    async void GetData()
+    {
+        Elements = (await datacontext.GetAll()).ToList();
+
+        StateHasChanged();
+    }
+
+    async void edit(int id)
+    {
+        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var parameters = new DialogParameters<EditPrixVente> { { x => x.Id, id } };
+        var dialog = await DialogService.ShowAsync<EditPrixVente>("Modifier un prix de vente", parameters, maxWidth);
+        var result = await dialog.Result;
+        if (result.Canceled)
+            GetData();
+    }
+
+    async void delete(int id)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Suppression",
+            "Voulez - vous supprimer ce prix de vente ?",
+            yesText: "Confirmer !", cancelText: "Annuler");
+        if (result == true)
+        {
+            var rep = await datacontext.Delete(id);
+            snackbar.Add(rep.Message, (Severity)rep.TypeResponse);
+            GetData();
+        }
+    }
+
+    private bool FilterFunc1(PrixVenteViewModel element) => FilterFunc(element, searchString1);
+
+    private bool FilterFunc(PrixVenteViewModel element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Article.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.PointVente.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Value.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        return true;
+        return false;
+    }
 }

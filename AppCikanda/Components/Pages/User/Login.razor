@@ -1,0 +1,71 @@
+﻿@page "/login"
+@layout LoginLayout
+
+<MudPaper MaxWidth="908px" Elevation="0">
+    <MudCard Style="min-width:520px;" Elevation="8">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">Connexion</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudTextField T="string" Label="Username ou Email" Required="true" AutoFocus="true"
+                          RequiredError="L'adresse mail ou Username est obligatoire" @bind-Value="model.Email" />
+            <MudTextField T="string" Label="Password" HelperText="Saisir le mot d'au mois 8 caractères"
+                          InputType="InputType.Password"
+                          Required="true" @bind-Value="model.Password" Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))"
+                          RequiredError="Le mot de passe est obligatoire" OnKeyUp="OnKeyUp" />
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="Valide">Se connecter</MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudPaper>
+
+
+@code {
+    LoginModel model;
+    [Inject] UserService datacontext { get; set; }
+    [Inject] ISnackbar snackbar { get; set; }
+    [Inject] NavigationManager navigate { get; set; }
+
+    protected override void OnInitialized()
+    {
+        model = new LoginModel();
+    }
+
+    private IEnumerable<string> PasswordStrength(string pw)
+    {
+        if (string.IsNullOrWhiteSpace(pw))
+        {
+            yield return "Le mot de passe est obligatoire";
+            yield break;
+        }
+        // if (pw.Length < 8)
+        //     yield return "Le mot de passe doit avoir au moins 8 caractères";
+        // if (!Regex.IsMatch(pw, @"[A-Z]"))
+        //     yield return "Le mot de passe doit contenir au moins un caractère majuscule";
+        // if (!Regex.IsMatch(pw, @"[a-z]"))
+        //     yield return "Le mot de passe doit contenir au moins un caractère miniscule";
+        // if (!Regex.IsMatch(pw, @"[0-9]"))
+        //     yield return "Le mot de passe doit contenir au moins un chiffre";
+    }
+
+    async void Valide()
+    {
+        var rep = await datacontext.Login(model);
+        snackbar.Add(rep.Message!, (Severity)rep.TypeResponse);
+        Severity dd = (Severity)rep.TypeResponse;
+        if(dd == Severity.Success)
+        {
+            MainForm.UserConnected = rep.Content as SessionModel;
+            navigate.NavigateTo("/");
+        }
+    }
+
+    void OnKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            Valide();
+    }
+}

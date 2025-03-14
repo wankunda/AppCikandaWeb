@@ -15,6 +15,8 @@ namespace Services
 
         public async Task<Response> Add(DepenseAddModel Model)
         {
+            Monnaie monnaie;
+            bool value = Enum.TryParse(new string(Model.Montant.Where(char.IsLetter).ToArray()), out monnaie);
             Depense depense = new Depense
             {
                 Code = Model.Code.ToString(),
@@ -22,8 +24,8 @@ namespace Services
                 Delete = false,
                 IdPointVente = Model.IdPointVente,
                 Beneficiaire = Model.Beneficiaire,
-                Monnaie = (int)Model.Monnaie,
-                Montant = Model.Montant,
+                Monnaie = (int)(value ? monnaie : Monnaie.CDF),
+                Montant = float.Parse(new string(Model.Montant.Where(char.IsDigit).ToArray())),
                 Motif = Model.Motif,
                 Synchronized = false,
             };
@@ -44,7 +46,7 @@ namespace Services
         public async Task<IEnumerable<DepenseViewModel>?> GetAll()
         {
             var data = await bdContext.Depenses
-                .Include(e=>e.PointVente)
+                .Include(e => e.PointVente)
                 .Where(e => !e.Delete)
                 .ToListAsync();
             List<DepenseViewModel> list = new List<DepenseViewModel>();
@@ -62,8 +64,8 @@ namespace Services
                     DateCreated = i.DateCreated,
                     LastSynchronized = i.LastSynchronized,
                     PointVente = i.PointVente.Designation,
-                    Montant=new Money(i.Montant, i.Monnaie),
-                    Motif=i.Motif,
+                    Montant = new Money(i.Montant, i.Monnaie),
+                    Motif = i.Motif,
                 });
                 num++;
             }
@@ -119,14 +121,13 @@ namespace Services
                 {
                     Code = new Guid(reponse.Code),
                     DateCreated = DateTime.Parse(reponse.DateCreated),
-                    DateUpdated = DateTime.Parse(reponse.DateUpdated),
-                    LastSynchronized = DateTime.Parse(reponse.LastSynchronized),
+                    DateUpdated = reponse.DateUpdated == null ? DateTime.Now : DateTime.Parse(reponse.DateUpdated),
+                    LastSynchronized = reponse.LastSynchronized == null ? DateTime.Now : DateTime.Parse(reponse.LastSynchronized),
                     Beneficiaire = reponse.Beneficiaire,
                     Id = reponse.Id,
                     IdPointVente = reponse.IdPointVente,
-                    Monnaie = (Monnaie)reponse.Monnaie,
                     Motif = reponse.Motif,
-                    Montant = reponse.Montant,
+                    Montant = reponse.Montant + " " + (Monnaie)reponse.Monnaie,
                     Synchronized = reponse.Synchronized
                 };
                 return depense;
@@ -168,6 +169,8 @@ namespace Services
 
         public async Task<Response> Update(DepenseAddModel Model)
         {
+            Monnaie monnaie;
+            bool value = Enum.TryParse(new string(Model.Montant.Where(char.IsLetter).ToArray()), out monnaie);
             Depense depense = new Depense
             {
                 Code = Model.Code.ToString(),
@@ -175,8 +178,8 @@ namespace Services
                 Delete = false,
                 IdPointVente = Model.IdPointVente,
                 Beneficiaire = Model.Beneficiaire,
-                Monnaie = (int)Model.Monnaie,
-                Montant = Model.Montant,
+                Monnaie = (int)(value ? monnaie : Monnaie.CDF),
+                Montant = float.Parse(new string(Model.Montant.Where(char.IsDigit).ToArray())),
                 Motif = Model.Motif,
                 Synchronized = false,
                 DateUpdated = Model.DateUpdated.ToShortDateString(),

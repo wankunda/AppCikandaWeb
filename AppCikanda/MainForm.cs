@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Components.WebView.WindowsForms;
 using Microsoft.Extensions.DependencyInjection;
 using Models;
-using Services;
 using MudBlazor.Services;
+using Services;
+using ViewModels;
 
 namespace AppCikanda
 {
@@ -19,6 +20,12 @@ namespace AppCikanda
             //Inscription des services
             services.AddScoped<CategoryService>();
             services.AddScoped<ArticleService>();
+            services.AddScoped<DepenseService>();
+            services.AddScoped<UserService>();
+            services.AddScoped<PrixVenteService>();
+            services.AddScoped<PointVenteService>();
+            services.AddScoped<TauxService>();
+            services.AddScoped<CommandService>();
 
 
             blazorWebView1.HostPage = "wwwroot\\index.html";
@@ -35,5 +42,7 @@ namespace AppCikanda
             dbContext = new AppLocalDbContext();
             dbContext.Database.EnsureCreated();
         }
+
+        public static SessionModel UserConnected;
     }
 }

@@ -1,8 +1,8 @@
 ﻿@page "/depenses"
 
-<MudTable Items="@Elements" Dense="true" Hover="true" Bordered="true" Striped="true" Filter="new Func<ArticleViewModel,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+<MudTable Items="@Elements" Dense="true" Hover="true" Bordered="true" Striped="false" Filter="new Func<DepenseViewModel,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Liste des catégories</MudText>
+        <MudText Typo="Typo.h6">Liste des dépenses</MudText>
         <MudSpacer />
         <MudTextField @bind-Value="searchString1" Placeholder="Rechercher" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         <MudSpacer />
@@ -11,27 +11,18 @@
         </MudTooltip>
     </ToolBarContent>
     <HeaderContent>
-        <MudTh>Nr</MudTh>
-        <MudTh></MudTh>
-        <MudTh>Catégorie</MudTh>
-        <MudTh>Désignation</MudTh>
-        <MudTh>Prix d'achat</MudTh>
-        <MudTh>Stock initial</MudTh>
+        <MudTh>Num</MudTh>
+        <MudTh>Bénéficiaire</MudTh>
+        <MudTh>Montant reçu</MudTh>
+        <MudTh>Motif</MudTh>
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Nr">@context.Num</MudTd>
+        <MudTd DataLabel="Num">@context.Num</MudTd>
+        <MudTd DataLabel="Catégorie">@context.Beneficiaire</MudTd>
+        <MudTd DataLabel="Désignation">@context.Montant.ToString()</MudTd>
+        <MudTd DataLabel="Prix d'achat">@context.Motif</MudTd>
         <MudTd>
-            <MudImage Src="@context.Image" Height="60" Alt="@context.Designation" Elevation="6" Class="rounded-lg ma-2" />
-        </MudTd>
-        <MudTd DataLabel="Catégorie">@context.Category</MudTd>
-        <MudTd DataLabel="Désignation">@context.Designation</MudTd>
-        <MudTd DataLabel="Prix d'achat">@context.PrixAchat</MudTd>
-        <MudTd DataLabel="Stock de départ">@context.StockInitial</MudTd>
-        <MudTd>
-            <MudTooltip Text="Voir plus" Color="Color.Primary" Placement="Placement.Top" Arrow="true">
-                <MudIconButton Color="Color.Primary" Variant="Variant.Filled" OnClick="()=>show(context.Id)" Icon="@Icons.Material.Filled.ChevronRight" />
-            </MudTooltip>
             <MudTooltip Text="Modifier" Color="Color.Success" Placement="Placement.Top" Arrow="true">
                 <MudIconButton Color="Color.Success" Variant="Variant.Filled" OnClick="()=>edit(context.Id)" Icon="@Icons.Material.Filled.Edit" />
             </MudTooltip>
@@ -47,18 +38,18 @@
 
 <div class="d-flex flex-wrap mt-4">
     <div style="min-width:200px;">
-        <MudText Class="align-self-center d-inline">Article sélectionné : @selectedItem1?.Designation Stock initial : @selectedItem1?.StockInitial</MudText>
+        <MudText Class="align-self-center d-inline">Dépense sélectionnée : @selectedItem1?.Beneficiaire a reçu un montant de : @selectedItem1?.Montant.ToString()</MudText>
     </div>
 </div>
 
 
 @code {
     private string searchString1 = "";
-    private DepenseAddModel selectedItem1 = null;
+    private DepenseViewModel selectedItem1 = null;
     [Inject] private IDialogService DialogService { get; set; }
     ﻿[Inject] DepenseService datacontext { get; set; }
     [Inject] ISnackbar snackbar { get; set; }
-    private List<ArticleViewModel> Elements = new List<ArticleViewModel>();
+    private List<DepenseViewModel> Elements = new List<DepenseViewModel>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,25 +66,18 @@
 
     async void add()
     {
-        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
-        var dialog = await DialogService.ShowAsync<AddArticle>("Ajouter un article",maxWidth);
+        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<AddDepense>("Ajouter une dépense",maxWidth);
         var result = await dialog.Result;
         if (result.Canceled)
             GetData();
     }
 
-    async void show(int id)
-    {
-        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.ExtraLarge, FullWidth = true, Position = DialogPosition.TopCenter };
-        var parameters = new DialogParameters<ShowArticle> { { x => x.Id, id } };
-        await DialogService.ShowAsync<ShowArticle>("Detail de l'article", parameters, maxWidth);
-    }
-
     async void edit(int id)
     {
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true };
-        var parameters = new DialogParameters<AddArticle> { { x => x.Id, id } };
-        var dialog = await DialogService.ShowAsync<AddArticle>("Modifier un article", parameters, maxWidth);
+        var parameters = new DialogParameters<AddDepense> { { x => x.Id, id } };
+        var dialog = await DialogService.ShowAsync<AddDepense>("Modifier une dépense", parameters, maxWidth);
         var result = await dialog.Result;
         if (result.Canceled)
             GetData();
@@ -103,7 +87,7 @@
     {
         bool? result = await DialogService.ShowMessageBox(
             "Suppression",
-            "Voulez - vous supprimer cet article ?",
+            "Voulez - vous supprimer cette dépense ?",
             yesText: "Confirmer !", cancelText: "Annuler");
         if (result == true)
         {
@@ -113,15 +97,17 @@
         }
     }
 
-    private bool FilterFunc1(ArticleViewModel element) => FilterFunc(element, searchString1);
+    private bool FilterFunc1(DepenseViewModel element) => FilterFunc(element, searchString1);
 
-    private bool FilterFunc(ArticleViewModel element, string searchString)
+    private bool FilterFunc(DepenseViewModel element, string searchString)
     {
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
-        if (element.Designation.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (element.Beneficiaire.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        if (element.Category.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (element.Motif.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+            if (element.Montant.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         return false;
     }

@@ -49,7 +49,9 @@ namespace Services
         {
             try
             {
-                var reponse = await bdContext.Categories.ToListAsync();
+                var reponse = await bdContext.Categories
+                    .OrderBy (c => c.Designation)
+                    .ToListAsync();
                 List<CategoryViewModel> categories = new();
                 int id = 1;
                 foreach (var i in reponse)
@@ -157,15 +159,13 @@ namespace Services
                 {
                     Code = reponse.Code,
                     DateCreated = reponse.DateCreated,
-                    DateUpdated = reponse.DateUpdated,
-                    LastSynchronized = reponse.LastSynchronized,
                     Designation = reponse.Designation,
-                    Synchronized = reponse.Synchronized,
                     Articles = reponse.Articles.Select(e => new CategoryProduitViewModel
                     {
                         Designation = e.Designation,
                         PrixAchat = new Money(e.PrixAchat, e.Monnaie),
                         StockInitial = e.StockInitial,
+                        StockSeuil= e.StockSecurite,
                         Synchronized = e.Synchronized,
                         DateCreated = e.DateCreated
 
@@ -184,14 +184,13 @@ namespace Services
             try
             {
                 var reponse = await bdContext.Categories
-                    .Include(e => e.Articles)
                     .FirstOrDefaultAsync(e => e.Id == id);
                 var category = new CategoryAddModel()
                 {
                     Code = new Guid(reponse.Code),
                     DateCreated = DateTime.Parse(reponse.DateCreated),
-                    DateUpdated = DateTime.Parse(reponse.DateUpdated),
-                    LastSynchronized = DateTime.Parse(reponse.LastSynchronized),
+                    DateUpdated = reponse.DateUpdated==null ? DateTime.Now : DateTime.Parse(reponse.DateUpdated),
+                    LastSynchronized = reponse.LastSynchronized == null ? DateTime.Now : DateTime.Parse(reponse.LastSynchronized),
                     Designation = reponse.Designation,
                     Synchronized = reponse.Synchronized,
                     Id = reponse.Id,

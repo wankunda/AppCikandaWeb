@@ -12,12 +12,12 @@
         </MudTooltip>
         </ToolBarContent>
         <HeaderContent>
-            <MudTh>Nr</MudTh>
+            <MudTh>Num</MudTh>
             <MudTh>Désignation</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="Nr">@context.Num</MudTd>
+            <MudTd DataLabel="Num">@context.Num</MudTd>
             <MudTd DataLabel="Désignation">@context.Designation</MudTd>
             <MudTd>
                 <MudTooltip Text="Voir plus" Color="Color.Primary" Placement="Placement.Top" Arrow="true">
@@ -48,7 +48,6 @@
     private CategoryViewModel selectedItem1 = null;
     [Inject] private IDialogService DialogService { get; set; }
     [Parameter] public Guid Id { get; set; }
-    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
     [Inject] CategoryService datacontext { get; set; }
     [Inject] ISnackbar snackbar { get; set; }
 
@@ -90,7 +89,7 @@
 
     async void show(int id)
     {
-        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.ExtraLarge, FullWidth = true, Position = DialogPosition.TopCenter };
+        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.TopCenter };
         var parameters = new DialogParameters<ShowCategory> { { x => x.Id, id } };
         await DialogService.ShowAsync<ShowCategory>("Detail de la catégorie", parameters, maxWidth);
     }

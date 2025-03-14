@@ -23,8 +23,8 @@ namespace Services
                 IdPointVente = Model.IdPointVente,
                 Monnaie1=(int)Model.Monnaie1,
                 Monnaie2=(int)Model.Monnaie2,
-                ValueMonnaie1=Model.ValueMonnaie1,
-                ValueMonnaie2=Model.ValueMonnaie2,
+                MonnaieLocale=Model.MonnaieLocal,
+                MonnaieConvertie=Model.MonnaieConvertie,
                 Synchronized = false,
             };
 
@@ -61,8 +61,8 @@ namespace Services
                     DateCreated = i.DateCreated,
                     LastSynchronized = i.LastSynchronized,
                     PointVente=i.PointVente.Designation,
-                    ValeurConverti1=new Money(i.ValueMonnaie1, i.Monnaie1),
-                    ValeurConverti2=new Money(i.ValueMonnaie2, i.Monnaie2),
+                    MonnaieLocale=new Money(i.MonnaieLocale, i.Monnaie1),
+                    MonnaieConvertie=new Money(i.MonnaieConvertie, i.Monnaie2),
                 });
                 num++;
             }
@@ -118,11 +118,11 @@ namespace Services
                 {
                     Code = new Guid(reponse.Code),
                     DateCreated = DateTime.Parse(reponse.DateCreated),
-                    DateUpdated = DateTime.Parse(reponse.DateUpdated),
-                    LastSynchronized = DateTime.Parse(reponse.LastSynchronized),
+                    DateUpdated = reponse.DateUpdated == null ? DateTime.Now : DateTime.Parse(reponse.DateUpdated),
+                    LastSynchronized = reponse.LastSynchronized == null ? DateTime.Now : DateTime.Parse(reponse.LastSynchronized),
                     Id = reponse.Id,
-                    ValueMonnaie2 = reponse.ValueMonnaie2,
-                    ValueMonnaie1 = reponse.ValueMonnaie1,
+                    MonnaieConvertie = reponse.MonnaieConvertie,
+                    MonnaieLocal = reponse.MonnaieLocale,
                     Monnaie2 = (Monnaie)reponse.Monnaie2,
                     Monnaie1 = (Monnaie)reponse.Monnaie1,
                     IdPointVente = reponse.IdPointVente,
@@ -146,8 +146,8 @@ namespace Services
                 IdPointVente = Model.IdPointVente,
                 Monnaie1 = (int)Model.Monnaie1,
                 Monnaie2 = (int)Model.Monnaie2,
-                ValueMonnaie1 = Model.ValueMonnaie1,
-                ValueMonnaie2 = Model.ValueMonnaie2,
+                MonnaieLocale = Model.MonnaieLocal,
+                MonnaieConvertie = Model.MonnaieConvertie,
                 Synchronized = false,
                 DateUpdated = Model.DateUpdated.ToShortDateString(),
                 LastSynchronized = Model.LastSynchronized.ToShortDateString(),

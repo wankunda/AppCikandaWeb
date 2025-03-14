@@ -1,30 +1,26 @@
 ﻿@namespace AppCikanda
 
 <MudNavMenu Color="Color.Warning" Class="pa-2">
-    <MudPaper Class="pa-4" Elevation="6" Style="background:transparent; color:white;">
-        <MudText Typo="Typo.caption" Class="px-4 py-1">Cikanda Businness</MudText>
+    <MudPaper Class="px-4 py-2 mb-4" Elevation="3" Style="@($"background:{Colors.Pink.Accent4}; color:white;")">
+        <MudText Typo="Typo.body1">Cikanda Business</MudText>
+        @if(MainForm.UserConnected != null)
+        {
+            <MudText Typo="Typo.caption" Color="Color.Success" Class="px-4 py-1">@MainForm.UserConnected?.PointVente</MudText>
+        }
     </MudPaper>
     
     <MudNavLink Href="/">Accueil</MudNavLink>
-    <MudNavGroup Title="Marchandises" IconColor="Color.Inherit" Icon="@Icons.Material.Filled.Girl" >
-        <MudNavLink Href="/articles">Articles</MudNavLink>
-        <MudNavLink Href="/categories">Catégorie</MudNavLink>
-        <MudNavLink Href="/achat">Entrées</MudNavLink>
-    </MudNavGroup>
-    <MudNavGroup Title="Points de vente">
-        <MudNavLink Href="/pointventes">Point de vente</MudNavLink>
-        <MudNavLink Href="/prrixventes">Prix de vente</MudNavLink>
-    </MudNavGroup>
+    <MudNavLink Href="/articles">Articles</MudNavLink>
+    <MudNavLink Href="/categories">Catégorie</MudNavLink>
+    <MudNavLink Href="/achats">Entrées</MudNavLink>
+    <MudNavLink Href="/pointventes">Point de vente</MudNavLink>
+    <MudNavLink Href="/prixventes">Prix de vente</MudNavLink>
     <MudNavLink Href="/depenses">Dépense</MudNavLink>
     <MudNavLink Href="/rapport">Rapport</MudNavLink>
-    <MudNavGroup Title="Stock">
-        <MudNavLink Href="/users">Situation</MudNavLink>
-        <MudNavLink Href="/security">Inventaire</MudNavLink>
-    </MudNavGroup>
-    <MudNavGroup Title="Configuration">
-        <MudNavLink Href="/users">Taux</MudNavLink>
-        <MudNavLink Href="/users">Situation</MudNavLink>
-        <MudNavLink Href="/security">Inventaire</MudNavLink>
-    </MudNavGroup>
+    <MudNavLink Href="/stock-general">Situation</MudNavLink>
+    <MudNavLink Href="/inventaires">Inventaire</MudNavLink>
+    <MudNavLink Href="/taux">Taux</MudNavLink>
+    <MudNavLink Href="/users">Utilisateurs</MudNavLink>
     <MudNavLink Href="/about">A propos</MudNavLink>
+
 </MudNavMenu>
